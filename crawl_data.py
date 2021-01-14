@@ -40,7 +40,7 @@ def crawl_dataset():
       os.mkdir(download_path)
 
     #Retrieve all file locations 
-    url_path='/files/ttf_links.txt'
+    url_path='files/ttf_links.txt'
     f = open(url_path, 'r') 
 
     while True: 
@@ -55,7 +55,7 @@ def crawl_dataset():
         urllib.request.urlretrieve('https://'+url, os.path.join(download_path,file_name))
     f.close()
 
-def load_charset(charset='kr',charset_path='/files/cjk.json'):
+def load_charset(charset='kr',charset_path='files/cjk.json'):
     #Load charset(list of characters) 
     #Charset referenced from zi2zi: kr, jp, gbk2312, gbk2312_t, gbk
     
@@ -91,11 +91,12 @@ def font2img(font_path,font_idx,charset,save_dir):
         pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
     
 def convert_all_fonts(charset):
-    if os.path.isdir(save_directory)==False:
-      os.mkdir(download_path)
-      
     font_directory=args.font_path
     save_directory=args.pickle_path
+
+    if os.path.isdir(save_directory)==False:
+      os.mkdir(download_path)
+
     fonts=os.listdir(font_directory)
 
     for idx,font in enumerate(fonts):
