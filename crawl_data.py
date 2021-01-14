@@ -95,7 +95,7 @@ def convert_all_fonts(charset):
     save_directory=args.pickle_path
 
     if os.path.isdir(save_directory)==False:
-      os.mkdir(download_path)
+      os.mkdir(save_directory)
 
     fonts=os.listdir(font_directory)
 
