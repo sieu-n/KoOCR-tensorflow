@@ -2,6 +2,7 @@ import numpy as np
 import os
 import tensorflow as tf
 import fnmatch
+import _pickle as pickle    #cPickle
 class KoreanManager():
   def __init__(self):
     self.CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ', ' ']
@@ -89,6 +90,8 @@ class DataPickleLoader():
         
         if self.split_components==True:
             return tf.data.Dataset.from_tensor_slices(images), tf.data.Dataset.from_tensor_slices({'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong}),did_reset
+        else:
+            return tf.data.Dataset.from_tensor_slices(images), tf.data.Dataset.from_tensor_slices(labels),did_reset
 
     def mix_indicies(self):
         np.random.shuffle(self.file_list)

@@ -82,14 +82,17 @@ def font2img(font_path,font_idx,charset,save_dir):
     font=ImageFont.truetype(font_path,size=args.char_size)
     image_arr,label_arr=[],[]
     
-    for c in progressbar.progressbar(charset):
-        e = draw_single_char(c, font)
-        image_arr.append(np.array(e))
-        label_arr.append(c)
+    try:
+        for c in progressbar.progressbar(charset):
+            e = draw_single_char(c, font)
+            image_arr.append(np.array(e))
+            label_arr.append(c)
 
-    with open(os.path.join(save_dir,str(font_idx)+'.pickle'),'wb') as handle:
-        pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
-    
+        with open(os.path.join(save_dir,str(font_idx)+'.pickle'),'wb') as handle:
+            pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
+    except:
+        print('Some error occured while processing',font)
+        
 def convert_all_fonts(charset):
     font_directory=args.font_path
     save_directory=args.pickle_path
