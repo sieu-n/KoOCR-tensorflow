@@ -32,9 +32,9 @@ def korean_split_numpy(words,to_text=False):
       ch1,ch2,ch3=19,22,ord(w) - ord('ㄱ')+1
 
     if to_text:
-      cho.append(self.CHOSUNG_LIST[ch1])
-      jung.append(self.JUNGSUNG_LIST[ch2])
-      jong.append(self.JONGSUNG_LIST[ch3])
+      cho.append(CHOSUNG_LIST[ch1])
+      jung.append(JUNGSUNG_LIST[ch2])
+      jong.append(JONGSUNG_LIST[ch3])
     else:
       cho.append(ch1)
       jung.append(ch2)

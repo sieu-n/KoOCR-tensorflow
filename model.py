@@ -70,7 +70,7 @@ class KoOCR():
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
-    def train(self,eopchs=10,lr=0.001,data_path='./data',patch_size=10,epoch_checkpoint=True):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,epoch_checkpoint=True):
         self.dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
 
         self.compile_model(lr)
@@ -79,14 +79,14 @@ class KoOCR():
         checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
         checkpoint = tf.train.Checkpoint(KoOCR=self.model)
 
-        for epoch in range(eopchs):
+        for epoch in range(epochs):
             print('Training epoch',epoch)
 
             epoch_end=False
             while epoch_end==False:
                 train_data,epoch_end=self.dataset.get()
 
-                self.model.fit(train_data,verbose=0)
+                self.model.fit(train_data,verbose=0,epoch=1)
 
             #Save weights in checkpoint
             if epoch_checkpoint:

@@ -4,6 +4,7 @@ import tensorflow as tf
 import fnmatch
 import _pickle as pickle    #cPickle
 import korean_manager
+import progressbar
 class DataPickleLoader():
     #Load data patch by patch
     def __init__(self,patch_size=10,data_path='./data',split_components=True):
@@ -22,6 +23,8 @@ class DataPickleLoader():
             with open(path,'rb') as handle:
                 data=pickle.load(handle)
             return data
+        
+        print("Loading dataset patch...")
         #Check if end of list
         did_reset=False
         next_idx=self.current_idx+self.patch_size
@@ -38,7 +41,7 @@ class DataPickleLoader():
             labels=data['label']
 
         path_slice=self.file_list[self.current_idx+1:next_idx]
-        for pkl in path_slice:
+        for pkl in progressbar.progressbar(path_slice):
             data=load_pickle(os.path.join(self.data_path,pkl))
             images=np.concatenate((images,data['image']),axis=0)
 
@@ -59,7 +62,11 @@ class DataPickleLoader():
             self.current_idx=0
         
         if self.split_components==True:
-            return tf.data.Dataset.from_tensor_slices({'input_image':images,'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong}),did_reset
+            #One hot encode labels and return
+            cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))
+            jung=tf.one_hot(jung,len(korean_manager.JUNGSUNG_LIST))
+            jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
+            return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong},did_reset
         else:
             return tf.data.Dataset.from_tensor_slices({'input_image':images,'output':labels}),did_reset
 
