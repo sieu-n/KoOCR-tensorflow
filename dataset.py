@@ -33,7 +33,7 @@ class KoreanManager():
 
 class DataPickleLoader():
     #Load data patch by patch
-    def __init__(self,patch_size=10,data_path='data',split_components=True):
+    def __init__(self,patch_size=10,data_path='./data',split_components=True):
         self.data_path=data_path
         self.patch_size=patch_size
         self.split_components=split_components
