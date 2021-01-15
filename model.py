@@ -84,9 +84,9 @@ class KoOCR():
 
             epoch_end=False
             while epoch_end==False:
-                train_data,epoch_end=self.dataset.get()
+                train_x,train_y,epoch_end=self.dataset.get()
 
-                self.model.fit(train_data,verbose=0,epoch=1)
+                self.model.fit(x=train_x,y=train_y,verbose=0,epochs=1)
 
             #Save weights in checkpoint
             if epoch_checkpoint:
