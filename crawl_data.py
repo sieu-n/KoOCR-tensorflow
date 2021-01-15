@@ -55,15 +55,6 @@ def crawl_dataset():
         urllib.request.urlretrieve('https://'+url, os.path.join(download_path,file_name))
     f.close()
 
-def load_charset(charset='kr',charset_path='files/cjk.json'):
-    #Load charset(list of characters) 
-    #Charset referenced from zi2zi: kr, jp, gbk2312, gbk2312_t, gbk
-    
-    with open(charset_path) as json_file:
-      data = json.load(json_file)
-      charset=data[charset]
-    return charset
-
 def filter_recurring_hash(charset, font):
     hash_list=collections.defaultdict(int)
     for c in charset:
