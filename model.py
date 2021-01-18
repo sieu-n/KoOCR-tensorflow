@@ -105,6 +105,9 @@ class KoOCR():
                 train_x,train_y,epoch_end=self.dataset.get()
 
                 self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
+
+                #Clear garbage memory
+                tf.keras.backend.clear_sesion()
                 gc.collect()
             #Save weights in checkpoint
             if epoch_checkpoint:
