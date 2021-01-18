@@ -26,9 +26,9 @@ class DataPickleLoader():
         self.mix_indicies()
 
     def load_pickle(self,path):
-            with open(path,'rb') as handle:
-                data=pickle.load(handle)
-            return data
+        with open(path,'rb') as handle:
+            data=pickle.load(handle)
+        return data
 
     def get_val(self):
         data=self.load_pickle(os.path.join(self.data_path,self.val_file_list[0]))

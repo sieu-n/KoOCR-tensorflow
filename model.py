@@ -6,15 +6,16 @@ import korean_manager
 from PIL import Image
 import random
 import os
-
+import gc
 class KoOCR():
-    def __init__(self,split_components=True):
+    def __init__(self,split_components=True,weight_path=''):
         self.split_components=split_components
 
         self.charset=korean_manager.load_charset()
 
         self.model=self.build_model()
-
+        if weight_path:
+            self.model=tf.keras.models.load_model(weight_path)
     def predict(self,image_path):
         image=Image.open(image_path).convert('LA')
 
@@ -32,7 +33,7 @@ class KoOCR():
         plt.show()
         print(y_pred)
         print(val_y)
-        
+
     def build_model(self):
         def down_conv(channels,kernel_size=3,bn=True,activation='lrelu'):
             #Define single downsampling operation
@@ -104,7 +105,7 @@ class KoOCR():
                 train_x,train_y,epoch_end=self.dataset.get()
 
                 self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
-
+                gc.collect()
             #Save weights in checkpoint
             if epoch_checkpoint:
                 checkpoint.save(file_prefix = checkpoint_prefix)
