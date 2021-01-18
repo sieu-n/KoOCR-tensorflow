@@ -19,6 +19,10 @@ def load_charset(charset='kr',charset_path='files/cjk.json'):
 #
 #  for x in list_of_characters:
 #    arr.append(charset.index(x))
+def index_to_korean(l):
+  cho,jung,jong=l
+  characterValue = ( (cho * 21) + jung) * 28 + jong + 0xAC00
+  return characterValue
 def korean_split_numpy(words,to_text=False):
   # 한글 글자의 np array를 입력받아 초성, 중성, 종성을 각각의 array로 내보내는 함수
   cho,jung,jong=[],[],[]

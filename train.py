@@ -25,7 +25,7 @@ parser.add_argument("--patch_size", type=int,default=10)
 
 parser.add_argument("--epochs", type=int,default=50)
 parser.add_argument("--weights", type=str,default='')
-parser.add_argument("--learning_rate", type=float,default=0.01)
+parser.add_argument("--learning_rate", type=float,default=0.000001)
 
 if __name__=='__main__':
     args = parser.parse_args()

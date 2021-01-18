@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import dataset
 import korean_manager
 from PIL import Image
+import random
 import os
 
 class KoOCR():
@@ -17,6 +18,21 @@ class KoOCR():
     def predict(self,image_path):
         image=Image.open(image_path).convert('LA')
 
+    def plot_val_image(self):
+        val_x,val_y=self.dataset.get_val()
+        indicies=random.sample(range(len(val_x)),10)
+        val_x,val_y=val_x[indicies],val_y[indicies]
+        y_pred=self.model.predict_classes(val_x)
+
+        fig = plt.figure(figsize=(10,1))
+        for idx in range(10):
+            plt.subplot(1,10,idx+1)
+            plt.imshow(val_x[idx])
+            plt.axis('off')
+        plt.show()
+        print(y_pred)
+        print(val_y)
+        
     def build_model(self):
         def down_conv(channels,kernel_size=3,bn=True,activation='lrelu'):
             #Define single downsampling operation
@@ -72,13 +88,14 @@ class KoOCR():
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,epoch_checkpoint=True):
         self.dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
+        val_x,val_y=self.dataset.get_val()
 
         self.compile_model(lr)
         
         checkpoint_dir = './training_checkpoints'
         checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
         checkpoint = tf.train.Checkpoint(KoOCR=self.model)
-
+        
         for epoch in range(epochs):
             print('Training epoch',epoch)
 
@@ -86,7 +103,7 @@ class KoOCR():
             while epoch_end==False:
                 train_x,train_y,epoch_end=self.dataset.get()
 
-                self.model.fit(x=train_x,y=train_y,verbose=0,epochs=1)
+                self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
 
             #Save weights in checkpoint
             if epoch_checkpoint:
