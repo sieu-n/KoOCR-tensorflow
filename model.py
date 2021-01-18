@@ -108,7 +108,7 @@ class KoOCR():
                 self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
 
                 #Clear garbage memory
-                tf.keras.backend.clear_sesion()
+                tf.keras.backend.clear_session()
                 gc.collect()
             #Save weights in checkpoint
             self.model.save('./logs/weights.h5')
