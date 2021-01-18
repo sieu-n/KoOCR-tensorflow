@@ -87,7 +87,7 @@ class KoOCR():
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
-    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,epoch_checkpoint=True):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10):
         self.dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=self.dataset.get_val()
 
@@ -110,7 +110,6 @@ class KoOCR():
                 tf.keras.backend.clear_sesion()
                 gc.collect()
             #Save weights in checkpoint
-            if epoch_checkpoint:
-                checkpoint.save(file_prefix = checkpoint_prefix)
+            self.model.save('./logs/weights.h5')
 
-        self.model.save('./logs')
+        
