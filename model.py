@@ -15,12 +15,13 @@ class KoOCR():
 
         self.model=self.build_model()
         if weight_path:
-            self.model=tf.keras.models.load_model(weight_path)
+            self.model=tf.saved_model.load(weight_path)
     def predict(self,image_path):
         image=Image.open(image_path).convert('LA')
 
-    def plot_val_image(self):
-        val_x,val_y=self.dataset.get_val()
+    def plot_val_image(self,data_path='./data'):
+        dataset_=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
+        val_x,val_y=dataset_.get_val()
         indicies=random.sample(range(len(val_x)),10)
         val_x,val_y=val_x[indicies],val_y[indicies]
         y_pred=self.model.predict_classes(val_x)
