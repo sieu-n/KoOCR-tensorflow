@@ -17,24 +17,36 @@ class KoOCR():
         self.model=self.build_model()
         if weight_path:
             self.model=tf.saved_model.load(weight_path)
-    def predict(self,image_path):
-        image=Image.open(image_path).convert('LA')
+            
+    def predict(self,image):
+        if image.shape==(256,256):
+            image=image.reshape((1,256,256))
+        #Predict classes
+        cho_pred,jung_pred,jong_pred=self.model.predict(image)
+        cho_pred,jung_pred,jong_pred=np.argmax(cho_pred,axis=1),np.argmax(jung_pred,axis=1),np.argmax(jong_pred,axis=1)
+        #Convert indicies to korean character
+        pred_hangeul=[]
+        for idx in range(image.shape[0]):
+            pred_hangeul.append(korean_manager.index_to_korean((cho_pred[idx],jung_pred[idx],jong_pred[idx])))
+
+        return pred_hangeul
 
     def plot_val_image(self,data_path='./data'):
+        #Load validation data
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
         val_x,val_y=train_dataset.get_val()
+        #Predict classes
         indicies=random.sample(range(len(val_x)),10)
-        val_x,val_y=val_x[indicies],val_y[indicies]
-        y_pred=self.model.predict_classes(val_x)
+        val_x=val_x[indicies]
+        pred_y=self.predict(val_x)
 
         fig = plt.figure(figsize=(10,1))
         for idx in range(10):
             plt.subplot(1,10,idx+1)
-            plt.imshow(val_x[idx])
+            plt.imshow(val_x[idx],cmap='gray')
             plt.axis('off')
-        plt.show()
-        print(y_pred)
-        print(val_y)
+        plt.savefig('./logs/image.png')
+        print(pred_y)
 
     def build_model(self):
         def down_conv(channels,kernel_size=3,bn=True,activation='lrelu'):
@@ -101,10 +113,10 @@ class KoOCR():
         
         for epoch in range(epochs):
             print('Training epoch',epoch)
-
+            self.plot_val_image(data_path=data_path)
             epoch_end=False
             while epoch_end==False:
-                self.plot_val_image(data_path=data_path)
+                
                 train_x,train_y,epoch_end=train_dataset.get()
 
                 self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
