@@ -6,6 +6,7 @@ import korean_manager
 from PIL import Image
 import random
 import os
+from IPython.display import clear_output
 import gc
 class KoOCR():
     def __init__(self,split_components=True,weight_path=''):
@@ -20,8 +21,8 @@ class KoOCR():
         image=Image.open(image_path).convert('LA')
 
     def plot_val_image(self,data_path='./data'):
-        dataset_=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
-        val_x,val_y=dataset_.get_val()
+        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
+        val_x,val_y=train_dataset.get_val()
         indicies=random.sample(range(len(val_x)),10)
         val_x,val_y=val_x[indicies],val_y[indicies]
         y_pred=self.model.predict_classes(val_x)
@@ -89,8 +90,8 @@ class KoOCR():
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10):
-        self.dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
-        val_x,val_y=self.dataset.get_val()
+        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
+        val_x,val_y=train_dataset.get_val()
 
         self.compile_model(lr)
         
@@ -103,13 +104,16 @@ class KoOCR():
 
             epoch_end=False
             while epoch_end==False:
-                train_x,train_y,epoch_end=self.dataset.get()
+                self.plot_val_image(data_path=data_path)
+                train_x,train_y,epoch_end=train_dataset.get()
 
                 self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
 
                 #Clear garbage memory
                 tf.keras.backend.clear_session()
                 gc.collect()
+                clear_output(wait=True)
+                
             #Save weights in checkpoint
             self.model.save('./logs/weights.h5')
 
