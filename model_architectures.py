@@ -69,4 +69,38 @@ def VGG16(split_components=True,input_shape=256):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-model_list={'custom':build_model,'VGG16':VGG16}
+def InceptionResnetV2(split_components=True,input_shape=256):
+    InceptionResnet = tf.keras.applications.inception_resnet_v2(input_shape=(input_shape,input_shape,3),
+                                               include_top=False,
+                                               weights='imagenet')
+
+    input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
+    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    concat=tf.keras.layers.concatenate([concat,concat,concat])
+    feature=InceptionResnet(concat)
+    
+    if split_components:
+        CHO,JUNG,JONG=build_FC_split(feature)
+        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+    else:
+        x=build_FC_regular(feature)
+        return tf.keras.models.Model(inputs=input_image,outputs=x)
+
+def MobilenetV3(split_components=True,input_shape=256):
+    Mobilenet = tf.keras.applications.mobilenet_v3(input_shape=(input_shape,input_shape,3),
+                                               include_top=False,
+                                               weights='imagenet')
+
+    input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
+    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    concat=tf.keras.layers.concatenate([concat,concat,concat])
+    feature=Mobilenet(concat)
+    
+    if split_components:
+        CHO,JUNG,JONG=build_FC_split(feature)
+        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+    else:
+        x=build_FC_regular(feature)
+        return tf.keras.models.Model(inputs=input_image,outputs=x)
+
+model_list={'custom':build_model,'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3}

@@ -22,7 +22,7 @@ parser.add_argument("--data_path", type=str,default='./data')
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
-parser.add_argument("--network", type=str,default='custom',choices=['custom', 'VGG16'])
+parser.add_argument("--network", type=str,default='custom',choices=['custom', 'VGG16','inception-resnet','mobilenet'])
 
 parser.add_argument("--epochs", type=int,default=50)
 parser.add_argument("--weights", type=str,default='')

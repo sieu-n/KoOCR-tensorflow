@@ -26,7 +26,6 @@ class KoOCR():
         #k: top classes for each component to generate
         #Returns top n characters that maximize (p|chosung)*(p|jungsung)*(p|jongsung)
         k=int(n**(1/3))+2
-        print(k)
         if image.shape==(256,256):
             image=image.reshape((1,256,256))
         #Predict top n classes
