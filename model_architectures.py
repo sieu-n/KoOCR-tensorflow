@@ -87,7 +87,7 @@ def InceptionResnetV2(split_components=True,input_shape=256):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def MobilenetV3(split_components=True,input_shape=256):
-    Mobilenet = tf.keras.applications.mobilenet_v3(input_shape=(input_shape,input_shape,3),
+    Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,3),
                                                include_top=False,
                                                weights='imagenet')
 
