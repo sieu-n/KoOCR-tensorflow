@@ -11,12 +11,12 @@ from IPython.display import clear_output
 import gc
 
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',model_type='custom'):
+    def __init__(self,split_components=True,weight_path='',network_type='custom'):
         self.split_components=split_components
 
         self.charset=korean_manager.load_charset()
 
-        self.model=model_architectures.model_list[model_type](split_components=split_components,input_shape=256)
+        self.model=model_architectures.model_list[network_type](split_components=split_components,input_shape=256)
 
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
