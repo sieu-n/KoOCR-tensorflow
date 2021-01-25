@@ -16,21 +16,32 @@ class KoOCR():
 
         self.model=self.build_model()
         if weight_path:
-            self.model=tf.saved_model.load(weight_path)
-            
-    def predict(self,image):
+            self.model=tf.keras.models.load_model(weight_path)
+    
+    def predict(self,image,n=1):
+        #Predict the top-n classes of the image
+        #k: top classes for each component to generate
+        k=int(n**0.3)+1
         if image.shape==(256,256):
             image=image.reshape((1,256,256))
-        #Predict classes
+        #Predict top n classes
         cho_pred,jung_pred,jong_pred=self.model.predict(image)
-        cho_pred,jung_pred,jong_pred=np.argmax(cho_pred,axis=1),np.argmax(jung_pred,axis=1),np.argmax(jong_pred,axis=1)
+        cho_idx,jung_idx,jong_idx=np.argsort(cho_pred,axis=1)[-k:],np.argsort(jung_pred,axis=1)[-k:],np.argsort(jong_pred,axis=1)[-k:]
+        cho_pred,jung_pred,jong_pred=np.sort(cho_pred,axis=1)[-k:],np.sort(jung_pred,axis=1)[-k:],np.sort(jong_pred,axis=1)[-k:]
         #Convert indicies to korean character
         pred_hangeul=[]
         for idx in range(image.shape[0]):
-            pred_hangeul.append(korean_manager.index_to_korean((cho_pred[idx],jung_pred[idx],jong_pred[idx])))
+            pred_hangeul.append([])
+
+            cho_prob,jung_prob,jong_prob=cho_pred[idx],jung_pred[idx].reshape(-1,1),jong_pred[idx].reshape(-1,1)
+
+            mult=((cho_prob*jung_prob).flatten()*jong_prob).flatten().argsort()[-5:][::-1]
+            for max_idx in mult:
+                print(n%3,(n%9)//3,n//9)
+                pred_hangeul[-1].append(korean_manager.index_to_korean((cho_idx[idx][max_idx%k],jung_idx[idx][(max_idx%(k*k))//k],jong_idx[idx][max_idx//9])))
 
         return pred_hangeul
-
+    
     def plot_val_image(self,data_path='./data'):
         #Load validation data
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
@@ -106,10 +117,6 @@ class KoOCR():
         val_x,val_y=train_dataset.get_val()
 
         self.compile_model(lr)
-        
-        checkpoint_dir = './training_checkpoints'
-        checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-        checkpoint = tf.train.Checkpoint(KoOCR=self.model)
         
         for epoch in range(epochs):
             print('Training epoch',epoch)
