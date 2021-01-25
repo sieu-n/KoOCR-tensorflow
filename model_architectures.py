@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np
 import korean_manager
 
-model_list={'custom':build_model,'VGG16':VGG16}
 def build_FC_split(x):
     x=tf.keras.layers.Flatten()(x)
     x=tf.keras.layers.Dense(1024)(x)
@@ -69,3 +68,5 @@ def VGG16(split_components=True,input_shape=256):
     else:
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
+
+model_list={'custom':build_model,'VGG16':VGG16}
