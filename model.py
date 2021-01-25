@@ -9,6 +9,7 @@ import model_architectures
 import os
 from IPython.display import clear_output
 import gc
+import datetime
 
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',network_type='custom'):
@@ -81,7 +82,9 @@ class KoOCR():
         val_x,val_y=train_dataset.get_val()
 
         self.compile_model(lr)
-        
+        summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+        step=0
+
         for epoch in range(epochs):
             print('Training epoch',epoch)
             self.plot_val_image(data_path=data_path)
@@ -90,8 +93,20 @@ class KoOCR():
                 
                 train_x,train_y,epoch_end=train_dataset.get()
 
-                self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
+                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
 
+                #Log losses to Tensorboard
+                with summary_writer.as_default():
+                    tf.summary.scalar('training_loss', history['loss'], step=step)
+                    tf.summary.scalar('CHOSUNG_accuracy', history['CHOSUNG_accuracy'], step=step)
+                    tf.summary.scalar('JUNGSUNG_accuracy', history['JUNGSUNG_accuracy'], step=step)
+                    tf.summary.scalar('JONGSUNG_accuracy', history['JONGSUNG_accuracy'], step=step)
+
+                    tf.summary.scalar('val_loss', history['val_loss'], step=step)
+                    tf.summary.scalar('val_CHOSUNG_accuracy', history['val_CHOSUNG_accuracy'], step=step)
+                    tf.summary.scalar('val_JUNGSUNG_accuracy', history['val_JUNGSUNG_accuracy'], step=step)
+                    tf.summary.scalar('val_JONGSUNG_accuracy', history['val_JONGSUNG_accuracy'], step=step)
+                step+=1
                 #Clear garbage memory
                 tf.keras.backend.clear_session()
                 gc.collect()
