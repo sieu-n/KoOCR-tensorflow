@@ -70,7 +70,7 @@ def VGG16(split_components=True,input_shape=256):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def InceptionResnetV2(split_components=True,input_shape=256):
-    InceptionResnet = tf.keras.applications.inception_resnet_v2(input_shape=(input_shape,input_shape,3),
+    InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,3),
                                                include_top=False,
                                                weights='imagenet')
 
