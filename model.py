@@ -5,29 +5,34 @@ import dataset
 import korean_manager
 from PIL import Image
 import random
+import model_architectures
 import os
 from IPython.display import clear_output
 import gc
+
 class KoOCR():
-    def __init__(self,split_components=True,weight_path=''):
+    def __init__(self,split_components=True,weight_path='',model_type='custom'):
         self.split_components=split_components
 
         self.charset=korean_manager.load_charset()
 
-        self.model=self.build_model()
+        self.model=model_architectures.model_list[model_type](split_components=split_components,input_shape=256)
+
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
     
     def predict(self,image,n=1):
         #Predict the top-n classes of the image
         #k: top classes for each component to generate
-        k=int(n**0.3)+1
+        #Returns top n characters that maximize (p|chosung)*(p|jungsung)*(p|jongsung)
+        k=int(n**(1/3))+2
+        print(k)
         if image.shape==(256,256):
             image=image.reshape((1,256,256))
         #Predict top n classes
         cho_pred,jung_pred,jong_pred=self.model.predict(image)
-        cho_idx,jung_idx,jong_idx=np.argsort(cho_pred,axis=1)[-k:],np.argsort(jung_pred,axis=1)[-k:],np.argsort(jong_pred,axis=1)[-k:]
-        cho_pred,jung_pred,jong_pred=np.sort(cho_pred,axis=1)[-k:],np.sort(jung_pred,axis=1)[-k:],np.sort(jong_pred,axis=1)[-k:]
+        cho_idx,jung_idx,jong_idx=np.argsort(cho_pred,axis=1)[:,-k:],np.argsort(jung_pred,axis=1)[:,-k:],np.argsort(jong_pred,axis=1)[:,-k:]
+        cho_pred,jung_pred,jong_pred=np.sort(cho_pred,axis=1)[:,-k:],np.sort(jung_pred,axis=1)[:,-k:],np.sort(jong_pred,axis=1)[:,-k:]
         #Convert indicies to korean character
         pred_hangeul=[]
         for idx in range(image.shape[0]):
@@ -37,8 +42,8 @@ class KoOCR():
 
             mult=((cho_prob*jung_prob).flatten()*jong_prob).flatten().argsort()[-5:][::-1]
             for max_idx in mult:
-                print(n%3,(n%9)//3,n//9)
-                pred_hangeul[-1].append(korean_manager.index_to_korean((cho_idx[idx][max_idx%k],jung_idx[idx][(max_idx%(k*k))//k],jong_idx[idx][max_idx//9])))
+                pred_hangeul[-1].append(korean_manager.index_to_korean((cho_idx[idx][max_idx%k],jung_idx[idx][(max_idx%(k*k))//k]\
+                    ,jong_idx[idx][max_idx//(k*k)])))
 
         return pred_hangeul
     
@@ -58,46 +63,6 @@ class KoOCR():
             plt.axis('off')
         plt.savefig('./logs/image.png')
         print(pred_y)
-
-    def build_model(self):
-        def down_conv(channels,kernel_size=3,bn=True,activation='lrelu'):
-            #Define single downsampling operation
-            init = tf.random_normal_initializer(0., 0.02)
-
-            down=tf.keras.models.Sequential()
-            down.add(tf.keras.layers.Conv2D(channels,kernel_size,strides=(2,2),padding='same',kernel_initializer=init,use_bias=False))
-            if bn:
-                down.add(tf.keras.layers.BatchNormalization())
-            
-            if activation=='lrelu':
-                down.add(tf.keras.layers.LeakyReLU())
-            elif activation=='relu':
-                down.add(tf.keras.layers.ReLU())
-            elif activation=='sigmoid':
-                down.add(tf.keras.layers.Activation(tf.nn.sigmoid))
-            return down
-
-        input_image=tf.keras.layers.Input(shape=(256,256),name='input_image')
-        x=tf.keras.layers.Reshape((256,256,1))(input_image)
-        x=down_conv(32)(x)  #(128,128,32)
-        x=down_conv(64)(x)  #(64,64,64)
-        x=down_conv(128)(x) #(32,32,128)
-        x=down_conv(256)(x) #(16,16,256)
-        x=down_conv(512)(x) #(8,8,512)
-        x=down_conv(512)(x) #(4,4,512)
-        
-        x=tf.keras.layers.Flatten()(x)
-        x=tf.keras.layers.Dense(1024)(x)
-
-        if self.split_components:
-            CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(x)
-            JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
-            JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
-
-            return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-        else:
-            x=tf.keras.layers.Dense(len(self.charset),activation='softmax',name='output')(x)
-            return tf.keras.models.Model(inputs=input_image,outputs=x)
             
     def compile_model(self,lr):
         #Compile model 

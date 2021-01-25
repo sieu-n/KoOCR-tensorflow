@@ -23,7 +23,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 #Define arguments
 parser = argparse.ArgumentParser(description='Download dataset')
-parser.add_argument("--font_path", type=str,default='./fsonts')
+parser.add_argument("--font_path", type=str,default='./fonts')
 parser.add_argument("--pickle_path", type=str,default='./data')
 
 parser.add_argument("--image_size", type=int,default=256)
