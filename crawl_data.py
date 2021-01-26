@@ -23,15 +23,23 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 #Define arguments
 parser = argparse.ArgumentParser(description='Download dataset')
+parser.add_argument("--data", type=str,default='clova',choices=['clova','none','SERI95a','PE92'])
 parser.add_argument("--font_path", type=str,default='./fonts')
 parser.add_argument("--pickle_path", type=str,default='./data')
 
+parser.add_argument("--image_test", type=str2bool,default=False)
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--x_offset", type=int,default=50)
 parser.add_argument("--y_offset", type=int,default=10)
 parser.add_argument("--char_size", type=int,default=200)
 
 def crawl_dataset():
+  if args.data=='clova':
+    crawl_clova_dataset()
+  elif args.data=='none':
+    return
+
+def crawl_clova_dataset():
     #Crawl and download .ttf files listed in ttf_links.txt
     #Make directory
     print('Downloading fonts in', args.font_path)
@@ -101,7 +109,18 @@ def convert_all_fonts(charset):
 
 if __name__=='__main__':
     args = parser.parse_args()
+    if args.image_test==False:
+        crawl_dataset()
+        charset=korean_manager.load_charset()
+        convert_all_fonts(charset)
+    else:
+        default_font=ImageFont.truetype('files/batang.ttf',size=args.char_size)
+        arr=draw_single_char('가',default_font)
+        arr=np.array(arr)
+        result = Image.fromarray(arr.astype(numpy.uint8))
+        result.save('./logs/가.jpg')
 
-    crawl_dataset()
-    charset=korean_manager.load_charset()
-    convert_all_fonts(charset)
+        arr=draw_single_char('나',default_font)
+        arr=np.array(arr)
+        result = Image.fromarray(arr.astype(numpy.uint8))
+        result.save('./logs/나.jpg')

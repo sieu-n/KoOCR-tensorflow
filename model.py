@@ -96,15 +96,15 @@ class KoOCR():
 
                 #Log losses to Tensorboard
                 with summary_writer.as_default():
-                    tf.summary.scalar('training_loss', history['loss'], step=step)
-                    tf.summary.scalar('CHOSUNG_accuracy', history['CHOSUNG_accuracy'], step=step)
-                    tf.summary.scalar('JUNGSUNG_accuracy', history['JUNGSUNG_accuracy'], step=step)
-                    tf.summary.scalar('JONGSUNG_accuracy', history['JONGSUNG_accuracy'], step=step)
+                    tf.summary.scalar('training_loss', history.history['loss'][0], step=step)
+                    tf.summary.scalar('CHOSUNG_accuracy', history.history['CHOSUNG_accuracy'][0], step=step)
+                    tf.summary.scalar('JUNGSUNG_accuracy', history.history['JUNGSUNG_accuracy'][0], step=step)
+                    tf.summary.scalar('JONGSUNG_accuracy', history.history['JONGSUNG_accuracy'][0], step=step)
 
-                    tf.summary.scalar('val_loss', history['val_loss'], step=step)
-                    tf.summary.scalar('val_CHOSUNG_accuracy', history['val_CHOSUNG_accuracy'], step=step)
-                    tf.summary.scalar('val_JUNGSUNG_accuracy', history['val_JUNGSUNG_accuracy'], step=step)
-                    tf.summary.scalar('val_JONGSUNG_accuracy', history['val_JONGSUNG_accuracy'], step=step)
+                    tf.summary.scalar('val_loss', history.history['val_loss'][0], step=step)
+                    tf.summary.scalar('val_CHOSUNG_accuracy', history.history['val_CHOSUNG_accuracy'][0], step=step)
+                    tf.summary.scalar('val_JUNGSUNG_accuracy', history.history['val_JUNGSUNG_accuracy'][0], step=step)
+                    tf.summary.scalar('val_JONGSUNG_accuracy', history.history['val_JONGSUNG_accuracy'][0], step=step)
                 step+=1
                 #Clear garbage memory
                 tf.keras.backend.clear_session()
