@@ -10,7 +10,7 @@ import json
 import _pickle as pickle    #cPickle
 import progressbar
 import collections
-
+import korean_manager
 #bool type for arguments
 def str2bool(v):
     if isinstance(v, bool):
@@ -103,5 +103,5 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     crawl_dataset()
-    charset=load_charset()
+    charset=korean_manager.load_charset()
     convert_all_fonts(charset)
