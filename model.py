@@ -12,16 +12,15 @@ import gc
 import datetime
 
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',network_type='custom'):
+    def __init__(self,split_components=True,weight_path='',network_type='custom',image_size=256):
         self.split_components=split_components
 
         self.charset=korean_manager.load_charset()
 
-        self.model=model_architectures.model_list[network_type](split_components=split_components,input_shape=256)
-
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
-    
+        else:
+            self.model=model_architectures.model_list[network_type](split_components=split_components,input_shape=image_size)
     def predict(self,image,n=1):
         #Predict the top-n classes of the image
         #k: top classes for each component to generate

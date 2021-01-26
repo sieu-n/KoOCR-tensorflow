@@ -31,5 +31,5 @@ parser.add_argument("--learning_rate", type=float,default=0.000001)
 if __name__=='__main__':
     args = parser.parse_args()
 
-    KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights,network_type=args.network)
+    KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights,network_type=args.network,image_size=args.image_size)
     KoOCR.train(epochs=args.epochs,lr=args.learning_rate,data_path=args.data_path,patch_size=args.patch_size)
