@@ -117,10 +117,10 @@ if __name__=='__main__':
         default_font=ImageFont.truetype('files/batang.ttf',size=args.char_size)
         arr=draw_single_char('가',default_font)
         arr=np.array(arr)
-        result = Image.fromarray(arr.astype(numpy.uint8))
+        result = Image.fromarray(arr.astype(np.uint8))
         result.save('./logs/가.jpg')
 
         arr=draw_single_char('나',default_font)
         arr=np.array(arr)
-        result = Image.fromarray(arr.astype(numpy.uint8))
+        result = Image.fromarray(arr.astype(np.uint8))
         result.save('./logs/나.jpg')
