@@ -76,7 +76,7 @@ class KoOCR():
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
-    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32):
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=train_dataset.get_val()
 
@@ -92,7 +92,7 @@ class KoOCR():
                 
                 train_x,train_y,epoch_end=train_dataset.get()
 
-                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y))
+                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
 
                 #Log losses to Tensorboard
                 with summary_writer.as_default():
