@@ -50,7 +50,7 @@ class DataPickleLoader():
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
             else:
-                labels=np.concatenate((labels,data['label']))
+                labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
         if self.split_components==True:
             #One hot encode labels and return
             cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))

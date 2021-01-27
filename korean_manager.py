@@ -8,21 +8,32 @@ JUNGSUNG_LIST = ['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 
 JONGSUNG_LIST = [' ', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ']
     
 def load_charset(charset='kr',charset_path='files/cjk.json'):
-  #Load charset(list of characters) 
+  #Load charset(list of characters): charset[index] = korean
   #Charset referenced from zi2zi: kr, jp, gbk2312, gbk2312_t, gbk
 
   with open(charset_path) as json_file:
     data = json.load(json_file)
     charset=data[charset]
   return charset
-#def to_index(list_of_characters,charset=load_charset()):
-#
-#  for x in list_of_characters:
-#    arr.append(charset.index(x))
+def inverse_charset(charset='kr',charset_path='files/cjk.json'):
+  #Load the inverse of the charset: inverse[korean] = index
+  charset=load_charset(charset=charset,charset_path=charset_path)
+  inverse={}
+  for x in range(len(charset)):
+    inverse[charset[x]]=x
+  return inverse
+
 def index_to_korean(l):
   cho,jung,jong=l
   characterValue = ( (cho * 21) + jung) * 28 + jong + 0xAC00
   return chr(characterValue)
+
+def korean_numpy(words):
+  charset=inverse_charset()
+  arr=[]
+  for w in words:
+    arr.append(charset[w])
+  return arr
 def korean_split_numpy(words,to_text=False):
   # 한글 글자의 np array를 입력받아 초성, 중성, 종성을 각각의 array로 내보내는 함수
   cho,jung,jong=[],[],[]
