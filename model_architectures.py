@@ -104,3 +104,10 @@ def MobilenetV3(split_components=True,input_shape=256):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 model_list={'custom':build_model,'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3}
+
+def PreprocessingPipeline():
+    preprocessing=tf.keras.models.Sequential()
+
+    #[0, 255] to [0, 1] with black white reversed
+    preprocessing.add(tf.keras.layers.experimental.preprocessing.Rescaling(-scale=1/255,offset=1))
+    return preprocessing

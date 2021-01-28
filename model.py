@@ -17,6 +17,8 @@ class KoOCR():
 
         self.charset=korean_manager.load_charset()
 
+        #Build and load model
+        self.preprocessing=model_architectures.PreprocessingPipeline()
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
         else:
@@ -68,10 +70,9 @@ class KoOCR():
 
         return pred_hangeul
     
-    def plot_val_image(self,data_path='./data'):
+    def plot_val_image(self,val_data):
         #Load validation data
-        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=1)
-        val_x,val_y=train_dataset.get_val()
+        val_x,val_y=val_data
         #Predict classes
         indicies=random.sample(range(len(val_x)),10)
         val_x=val_x[indicies]
@@ -99,25 +100,9 @@ class KoOCR():
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32):
-        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
-        val_x,val_y=train_dataset.get_val()
-
-        self.compile_model(lr)
-        summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-        step=0
-
-        for epoch in range(epochs):
-            print('Training epoch',epoch)
-            self.plot_val_image(data_path=data_path)
-            epoch_end=False
-            while epoch_end==False:
-                
-                train_x,train_y,epoch_end=train_dataset.get()
-
-                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
-
-                #Log losses to Tensorboard
-                with summary_writer.as_default():
+        def write_tensorboard(summary_writer,history,step):
+             with summary_writer.as_default():
+                if self.split_components:
                     tf.summary.scalar('training_loss', history.history['loss'][0], step=step)
                     tf.summary.scalar('CHOSUNG_accuracy', history.history['CHOSUNG_accuracy'][0], step=step)
                     tf.summary.scalar('JUNGSUNG_accuracy', history.history['JUNGSUNG_accuracy'][0], step=step)
@@ -127,6 +112,32 @@ class KoOCR():
                     tf.summary.scalar('val_CHOSUNG_accuracy', history.history['val_CHOSUNG_accuracy'][0], step=step)
                     tf.summary.scalar('val_JUNGSUNG_accuracy', history.history['val_JUNGSUNG_accuracy'][0], step=step)
                     tf.summary.scalar('val_JONGSUNG_accuracy', history.history['val_JONGSUNG_accuracy'][0], step=step)
+                else:
+                    tf.summary.scalar('training_loss', history.history['loss'][0], step=step)
+                    tf.summary.scalar('val_loss', history.history['accuracy'][0], step=step)
+                    tf.summary.scalar('training_accuracy', history.history['val_loss'][0], step=step)
+                    tf.summary.scalar('val_accuracy', history.history['val_accuracy'][0], step=step)
+
+        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
+        val_x,val_y=train_dataset.get_val()
+        val_x=self.preprocessing(val_x)
+
+        self.compile_model(lr)
+        summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+        step=0
+
+        for epoch in range(epochs):
+            print('Training epoch',epoch)
+            self.plot_val_image(data_path=data_path,val_data=(val_x,val_y))
+            epoch_end=False
+            while epoch_end==False:
+                #Train on loaded dataset batch
+                train_x,train_y,epoch_end=train_dataset.get()
+                train_x=self.preprocessing(train_x)
+                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
+
+                #Log losses to Tensorboard
+                write_tensorboard(summary_writer,history,step)
                 step+=1
                 #Clear garbage memory
                 tf.keras.backend.clear_session()
