@@ -127,7 +127,7 @@ class KoOCR():
 
         for epoch in range(epochs):
             print('Training epoch',epoch)
-            self.plot_val_image(data_path=data_path,val_data=(val_x,val_y))
+            self.plot_val_image(val_data=(val_x,val_y))
             epoch_end=False
             while epoch_end==False:
                 #Train on loaded dataset batch
