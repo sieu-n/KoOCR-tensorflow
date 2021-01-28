@@ -120,7 +120,6 @@ class KoOCR():
 
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=train_dataset.get_val()
-        val_x=self.preprocessing(val_x)
 
         self.compile_model(lr)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -133,7 +132,6 @@ class KoOCR():
             while epoch_end==False:
                 #Train on loaded dataset batch
                 train_x,train_y,epoch_end=train_dataset.get()
-                train_x=self.preprocessing(train_x)
                 history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
 
                 #Log losses to Tensorboard

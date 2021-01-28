@@ -58,7 +58,8 @@ def VGG16(split_components=True,input_shape=256):
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline()(input_image)
+    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=VGG_net(concat)
     
@@ -75,7 +76,8 @@ def InceptionResnetV2(split_components=True,input_shape=256):
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline()(input_image)
+    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=InceptionResnet(concat)
     
@@ -92,7 +94,8 @@ def MobilenetV3(split_components=True,input_shape=256):
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline()(input_image)
+    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=Mobilenet(concat)
     
@@ -109,5 +112,5 @@ def PreprocessingPipeline():
     preprocessing=tf.keras.models.Sequential()
 
     #[0, 255] to [0, 1] with black white reversed
-    preprocessing.add(tf.keras.layers.experimental.preprocessing.Rescaling(-scale=1/255,offset=1))
+    preprocessing.add(tf.keras.layers.experimental.preprocessing.Rescaling(scale=-1/255,offset=1))
     return preprocessing
