@@ -61,7 +61,8 @@ def VGG16(split_components=True,input_shape=256,direct_map=True):
                                                include_top=False,weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
+    preprocessed=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline(direct_map)(preprocessed)
     
     feature=VGG_net(preprocessed)
     
@@ -81,7 +82,8 @@ def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
                                                include_top=False,weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
+    preprocessed=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline(direct_map)(preprocessed)
 
     feature=InceptionResnet(preprocessed)
     
@@ -101,7 +103,8 @@ def MobilenetV3(split_components=True,input_shape=256,direct_map=True):
                                                include_top=False, weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
+    preprocessed=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline(direct_map)(preprocessed)
     
     feature=Mobilenet(preprocessed)
     
@@ -161,6 +164,6 @@ def DirectMapGeneration():
     sobel_filters=np.moveaxis(sobel_filters, 0, -1)
 
     DirectMap = tf.keras.models.Sequential()
-    DirectMap.add(tf.keras.layers.Conv2D(8, (3,3), input_shape=(None, None, 1),use_bias=False))
+    DirectMap.add(tf.keras.layers.Conv2D(8, (3,3), padding='same',input_shape=(None, None, 1),use_bias=False))
     DirectMap.set_weights([sobel_filters])
     return DirectMap

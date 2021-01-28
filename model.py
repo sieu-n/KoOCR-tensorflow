@@ -18,7 +18,6 @@ class KoOCR():
         self.charset=korean_manager.load_charset()
 
         #Build and load model
-        self.preprocessing=model_architectures.PreprocessingPipeline()
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
         else:
