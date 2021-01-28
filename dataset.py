@@ -106,6 +106,7 @@ class DataPickleLoader():
             jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong},did_reset
         else:
+            labels=tf.one_hot(labels,len(korean_manager.load_charset()))
             return images,labels,did_reset
 
     def mix_indicies(self):
