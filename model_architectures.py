@@ -53,15 +53,17 @@ def build_model(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def VGG16(split_components=True,input_shape=256,direct_map=True):
-    VGG_net = tf.keras.applications.VGG16(input_shape=(input_shape,input_shape,3),
-                                               include_top=False,
-                                               weights='imagenet')
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
+    VGG_net = tf.keras.applications.VGG16(input_shape=(input_shape,input_shape,input_channels),
+                                               include_top=False,weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
     preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
-    concat=tf.keras.layers.concatenate([concat,concat,concat])
-    feature=VGG_net(concat)
+    
+    feature=VGG_net(preprocessed)
     
     if split_components:
         CHO,JUNG,JONG=build_FC_split(feature)
@@ -71,15 +73,17 @@ def VGG16(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
-    InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,3),
-                                               include_top=False,
-                                               weights='imagenet')
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
+    InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,input_channels),
+                                               include_top=False,weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
     preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
-    concat=tf.keras.layers.concatenate([concat,concat,concat])
-    feature=InceptionResnet(concat)
+
+    feature=InceptionResnet(preprocessed)
     
     if split_components:
         CHO,JUNG,JONG=build_FC_split(feature)
@@ -89,15 +93,17 @@ def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def MobilenetV3(split_components=True,input_shape=256,direct_map=True):
-    Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,3),
-                                               include_top=False,
-                                               weights='imagenet')
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
+    Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,input_channels),
+                                               include_top=False, weights=None)
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
     preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
-    concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
-    concat=tf.keras.layers.concatenate([concat,concat,concat])
-    feature=Mobilenet(concat)
+    
+    feature=Mobilenet(preprocessed)
     
     if split_components:
         CHO,JUNG,JONG=build_FC_split(feature)
