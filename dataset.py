@@ -37,7 +37,7 @@ class DataPickleLoader():
         if self.split_components==True:
             cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         else:
-            labels=data['label']
+            labels=korean_manager.korean_numpy(data['label'])
         
         for pkl in self.val_file_list[1:]:
             data=self.load_pickle(os.path.join(self.data_path,pkl))
@@ -58,6 +58,7 @@ class DataPickleLoader():
             jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong}
         else:
+            labels=tf.one_hot(labels,len(korean_manager.load_charset()))
             return images,labels
 
     def get(self):
@@ -75,7 +76,7 @@ class DataPickleLoader():
         if self.split_components==True:
             cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         else:
-            labels=data['label']
+            labels=korean_manager.korean_numpy(data['label'])
 
         path_slice=self.file_list[self.current_idx+1:next_idx]
         for pkl in progressbar.progressbar(path_slice):
@@ -89,7 +90,7 @@ class DataPickleLoader():
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
             else:
-                labels=np.concatenate((labels,data['label']))
+                labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
             
 
         #Reset if final chunk of image

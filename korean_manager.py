@@ -32,12 +32,11 @@ def korean_numpy(words):
   charset=inverse_charset()
   arr=[]
   for w in words:
+    ch1,ch2,ch3=korean_split(w)
     arr.append(charset[w])
-  return arr
-def korean_split_numpy(words,to_text=False):
-  # 한글 글자의 np array를 입력받아 초성, 중성, 종성을 각각의 array로 내보내는 함수
-  cho,jung,jong=[],[],[]
-  for w in words:
+  return np.array(arr)
+
+def korean_split(w):
     ch1 = (ord(w) - ord('가'))//588
     ch2 = ((ord(w) - ord('가')) - (588*ch1)) // 28
     ch3 = (ord(w) - ord('가')) - (588*ch1) - 28*ch2
@@ -45,6 +44,12 @@ def korean_split_numpy(words,to_text=False):
     #ㄱ,ㄴ,ㄷ,... 처리 
     if ch1==-54:
       ch1,ch2,ch3=19,22,ord(w) - ord('ㄱ')+1
+    return ch1,ch2,ch3
+def korean_split_numpy(words,to_text=False):
+  # 한글 글자의 np array를 입력받아 초성, 중성, 종성을 각각의 array로 내보내는 함수
+  cho,jung,jong=[],[],[]
+  for w in words:
+    ch1,ch2,ch3=korean_split(w)
 
     if to_text:
       cho.append(CHOSUNG_LIST[ch1])

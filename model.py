@@ -36,8 +36,9 @@ class KoOCR():
         pred_class=np.argsort(pred_class,axis=1)[:,-n:]
         pred_hangeul=[]
         for idx in range(image.shape[0]):
-            print(pred_class[idx])
-            pred_hangeul.append(charset[pred_class[idx]])
+            pred_hangeul.append([])
+            for char in pred_class[idx]:
+                pred_hangeul[-1].append(charset[char])
         return pred_hangeul
 
         
@@ -86,7 +87,7 @@ class KoOCR():
             
     def compile_model(self,lr):
         #Compile model 
-        optimizer=tf.keras.optimizers.Adam(lr)
+        optimizer=tf.keras.optimizers.SGD(lr)
         if self.split_components:
             losses = {
                 "CHOSUNG": "categorical_crossentropy",
