@@ -17,7 +17,7 @@ def build_FC_regular(x):
     x=tf.keras.layers.Dense(len(korean_manager.load_charset()),activation='softmax',name='output')(x)
     return x
 
-def build_model(split_components=True,input_shape=256):
+def build_model(split_components=True,input_shape=256,direct_map=True):
     def down_conv(channels,kernel_size=3,bn=True,activation='lrelu'):
         #Define single downsampling operation
         init = tf.random_normal_initializer(0., 0.02)
@@ -52,13 +52,13 @@ def build_model(split_components=True,input_shape=256):
         x=build_FC_regular(x)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-def VGG16(split_components=True,input_shape=256):
+def VGG16(split_components=True,input_shape=256,direct_map=True):
     VGG_net = tf.keras.applications.VGG16(input_shape=(input_shape,input_shape,3),
                                                include_top=False,
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline()(input_image)
+    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
     concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=VGG_net(concat)
@@ -70,13 +70,13 @@ def VGG16(split_components=True,input_shape=256):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-def InceptionResnetV2(split_components=True,input_shape=256):
+def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
     InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,3),
                                                include_top=False,
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline()(input_image)
+    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
     concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=InceptionResnet(concat)
@@ -88,13 +88,13 @@ def InceptionResnetV2(split_components=True,input_shape=256):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-def MobilenetV3(split_components=True,input_shape=256):
+def MobilenetV3(split_components=True,input_shape=256,direct_map=True):
     Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,3),
                                                include_top=False,
                                                weights='imagenet')
 
     input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
-    preprocessed=PreprocessingPipeline()(input_image)
+    preprocessed=PreprocessingPipeline(direct_map=direct_map)(input_image)
     concat=tf.keras.layers.Reshape((input_shape,input_shape,1))(preprocessed)
     concat=tf.keras.layers.concatenate([concat,concat,concat])
     feature=Mobilenet(concat)
@@ -108,9 +108,53 @@ def MobilenetV3(split_components=True,input_shape=256):
 
 model_list={'custom':build_model,'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3}
 
-def PreprocessingPipeline():
+def PreprocessingPipeline(direct_map):
     preprocessing=tf.keras.models.Sequential()
 
     #[0, 255] to [0, 1] with black white reversed
     preprocessing.add(tf.keras.layers.experimental.preprocessing.Rescaling(scale=-1/255,offset=1))
+    #DirectMap normalization
+    if direct_map==True:
+        preprocessing.add(DirectMapGeneration())
     return preprocessing
+def DirectMapGeneration():
+    #Generate sobel filter for 8 direction maps
+    sobel_filters=[
+        [[-1,0,1],
+        [-2,0,2],
+        [-1,0,1]],
+
+        [[1,0,-1],
+        [2,0,-2],
+        [1,0,-1]],
+
+        [[1,2,1],
+        [0,0,0],
+        [-1,-2,-1]],
+
+        [[-1,-2,-1],
+        [0,0,0],
+        [1,2,1]],
+
+        [[0,1,2],
+        [-1,0,1],
+        [-2,-1,0]],
+
+        [[0,-1,-2],
+        [1,0,-1],
+        [2,1,0]],
+
+        [[-2,-1,0],
+        [-1,0,1],
+        [0,1,2]],
+
+        [[2,1,0],
+        [1,0,-1],
+        [0,-1,-2]]]
+    sobel_filters=np.array(sobel_filters).astype(np.float).reshape(8,3,3,1)
+    sobel_filters=np.moveaxis(sobel_filters, 0, -1)
+
+    DirectMap = tf.keras.models.Sequential()
+    DirectMap.add(tf.keras.layers.Conv2D(8, (3,3), input_shape=(None, None, 1),use_bias=False))
+    DirectMap.set_weights([sobel_filters])
+    return DirectMap
