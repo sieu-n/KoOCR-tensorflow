@@ -9,7 +9,6 @@ import progressbar
 class DataPickleLoader():
     #Load data patch by patch
     def __init__(self,patch_size=10,data_path='./data',split_components=True,val_data=.1):
-        random.seed(42)
         self.data_path=data_path
         self.patch_size=patch_size
         self.split_components=split_components
