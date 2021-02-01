@@ -14,7 +14,7 @@ import collections
 import tensorflow as tf
 import korean_manager
 from google_drive_downloader import GoogleDriveDownloader as gdd
-
+from GoogleDrive import Create_Service
 #bool type for arguments
 def str2bool(v):
     if isinstance(v, bool):
@@ -183,14 +183,6 @@ def crawl_clova_fonts():
 
         urllib.request.urlretrieve('https://'+url, os.path.join(download_path,file_name))
     f.close()
-
-def filter_recurring_hash(charset, font):
-    hash_list=collections.defaultdict(int)
-    for c in charset:
-        img = draw_single_char(c, font)
-        hash_list[hash(img.tobytes())] += 1
-    recurring_hashes = filter(lambda d: d[1] > 2, hash_list.items())
-    return [rh[0] for rh in recurring_hashes]
 
 def draw_single_char(ch, font):
     img = Image.new("L", (args.image_size, args.image_size), 255)
