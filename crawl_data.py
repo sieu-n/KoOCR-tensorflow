@@ -30,6 +30,7 @@ parser = argparse.ArgumentParser(description='Download dataset')
 parser.add_argument("--font_path", type=str,default='./fonts')
 parser.add_argument("--AIHub_path", type=str,default='./AIhub')
 parser.add_argument("--pickle_path", type=str,default='./data')
+parser.add_argument("--val_path", type=str,default='./val_data')
 parser.add_argument("--pickle_path_val", type=str,default='./data')
 parser.add_argument("--val_ratio", type=float,default=.1)
 
@@ -56,6 +57,8 @@ def pickle_AIHub_images():
     #Pickle AIHub data into handwritten, printed
     if os.path.isdir(args.pickle_path)==False:
         os.mkdir(args.pickle_path)
+    if os.path.isdir(args.val_path)==False:
+        os.mkdir(args.val_path)
     random.seed(42)
     #Unpickle Handwritten files
     f = open(os.path.join(args.AIHub_path,'handwritten_label.json')) 
@@ -66,14 +69,21 @@ def pickle_AIHub_images():
     images_before_pickle=args.pickle_size
     pickle_idx=0
     image_arr,label_arr=[],[]
+    test_start=len(anno['annotations'])//args.pickle_size
 
     for x in progressbar.progressbar(anno['annotations']):
         #Save data split into pickle
         if images_before_pickle==0:
             image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
-            with open(os.path.join(args.pickle_path,'handwritten_'+str(pickle_idx)+'.pickle'),'wb') as handle:
-                pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
+            #Split train and test data
+            if pickle_idx<=test_start:
+                file_path=args.pickle_path
+            else:
+                file_path=args.val_path
+
+            with open(os.path.join(file_path,'handwritten_'+str(pickle_idx)+'.pickle'),'wb') as handle:
+                    pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
             pickle_idx+=1
         #Append to list if character type of data
         if (x['attributes']['type']=='글자(음절)'):
@@ -99,6 +109,7 @@ def pickle_AIHub_images():
 
     images_before_pickle=args.pickle_size
     pickle_idx=0
+    test_start=len(anno['annotations'])//args.pickle_size
     image_arr,label_arr=[],[]
 
     for x in progressbar.progressbar(anno['annotations']):
@@ -106,7 +117,12 @@ def pickle_AIHub_images():
         if images_before_pickle==0:
             image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
-            with open(os.path.join(args.pickle_path,'printed_'+str(pickle_idx)+'.pickle'),'wb') as handle:
+            #Split train and test data
+            if pickle_idx<=test_start:
+                file_path=args.pickle_path
+            else:
+                file_path=args.val_path
+            with open(os.path.join(file_path,'printed_'+str(pickle_idx)+'.pickle'),'wb') as handle:
                 pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
             pickle_idx+=1
         #Append to list if character type of data
@@ -187,7 +203,7 @@ def font2img(font_path,font_idx,charset,save_dir):
     image_arr,label_arr=[],[]
     
     try:
-        for c in progressbar.progressbar(charset):
+        for c in charset:
             e = draw_single_char(c, font)
             image_arr.append(np.array(e))
             label_arr.append(c)
@@ -195,7 +211,7 @@ def font2img(font_path,font_idx,charset,save_dir):
         with open(os.path.join(save_dir,'clova_'+str(font_idx)+'.pickle'),'wb') as handle:
             pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
     except:
-        print('Some error occured while processing',font)
+        pass
         
 def convert_all_fonts(charset):
     font_directory=args.font_path
@@ -203,13 +219,14 @@ def convert_all_fonts(charset):
 
     if os.path.isdir(save_directory)==False:
       os.mkdir(save_directory)
+    if os.path.isdir(args.val_path)==False:
+        os.mkdir(args.val_path)
 
     fonts=os.listdir(font_directory)
 
-    for idx,font in enumerate(fonts):
+    for idx,font in progressbar.progressbar(enumerate(fonts)):
         full_path=os.path.join(font_directory,font)
 
-        print('Converting',font)
         font2img(full_path,idx,charset,save_directory)
 
 if __name__=='__main__':

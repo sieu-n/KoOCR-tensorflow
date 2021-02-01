@@ -8,19 +8,19 @@ import random
 import progressbar
 class DataPickleLoader():
     #Load data patch by patch
-    def __init__(self,patch_size=10,data_path='./data',split_components=True,val_data=.1):
+    def __init__(self,patch_size=10,data_path='./data',val_data_path='./val_data',split_components=True,val_data=.1):
         self.data_path=data_path
+        self.val_data_path=val_data_path
         self.patch_size=patch_size
         self.split_components=split_components
 
         self.current_idx=0
 
         file_list=fnmatch.filter(os.listdir(data_path), '*.pickle')
+        val_file_list=fnmatch.filter(os.listdir(val_data_path), '*.pickle')
 
-        train_test_split=int(val_data*len(file_list))
-        random.shuffle(file_list)
-        self.file_list=file_list[train_test_split:]
-        self.val_file_list=file_list[:train_test_split]
+        self.file_list=random.shuffle(file_list)
+        self.val_file_list=val_file_list
 
         self.mix_indicies()
 
@@ -30,7 +30,7 @@ class DataPickleLoader():
         return data
 
     def get_val(self):
-        data=self.load_pickle(os.path.join(self.data_path,self.val_file_list[0]))
+        data=self.load_pickle(os.path.join(self.val_data_path,self.val_file_list[0]))
         images=data['image']
 
         if self.split_components==True:
