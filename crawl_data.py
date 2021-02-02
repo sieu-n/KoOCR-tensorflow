@@ -10,6 +10,7 @@ import PIL
 import json
 import _pickle as pickle    #cPickle
 import progressbar
+import threading
 import collections
 import tensorflow as tf
 import korean_manager
@@ -73,10 +74,9 @@ def pickle_AIHub_images():
     for x in progressbar.progressbar(anno['annotations']):
         #Save data split into pickle
         if images_before_pickle==0:
-            image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
             #Split train and test data
-            if random.random()<args.val_ratio:
+            if random.random()>args.val_ratio:
                 file_path=args.pickle_path
             else:
                 file_path=args.val_path
@@ -84,6 +84,7 @@ def pickle_AIHub_images():
             with open(os.path.join(file_path,'handwritten_'+str(pickle_idx)+'.pickle'),'wb') as handle:
                     pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
             pickle_idx+=1
+            image_arr,label_arr=[],[]
         #Append to list if character type of data
         if (x['attributes']['type']=='글자(음절)'):
             #Find the path between 2 directories
@@ -97,7 +98,7 @@ def pickle_AIHub_images():
             #Save image and text
             if true_path:
                 im=tf.keras.preprocessing.image.load_img(true_path,color_mode='grayscale',target_size=(args.image_size,args.image_size))
-                image_arr.append(im)
+                image_arr.append(tf.keras.preprocessing.image.img_to_array(im)[:,:,0])
                 label_arr.append(x['text'])
                 images_before_pickle-=1
     #Unpickle Printed files
@@ -113,22 +114,22 @@ def pickle_AIHub_images():
     for x in progressbar.progressbar(anno['annotations']):
         #Save data split into pickle
         if images_before_pickle==0:
-            image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
             #Split train and test data
-            if random.random()<args.val_ratio:
+            if random.random()>args.val_ratio:
                 file_path=args.pickle_path
             else:
                 file_path=args.val_path
             with open(os.path.join(file_path,'printed_'+str(pickle_idx)+'.pickle'),'wb') as handle:
                 pickle.dump({'image':np.array(image_arr),'label':np.array(label_arr)},handle)
             pickle_idx+=1
+            image_arr,label_arr=[],[]
         #Append to list if character type of data
         if (x['attributes']['type']=='글자(음절)'):
             path=os.path.join(args.AIHub_path,'syllable/'+x['image_id']+'.png')
             if os.path.isfile(path)==True:
                 im=tf.keras.preprocessing.image.load_img(path,color_mode='grayscale',target_size=(args.image_size,args.image_size))
-                image_arr.append(im)
+                image_arr.append(tf.keras.preprocessing.image.img_to_array(im)[:,:,0])
                 label_arr.append(x['text'])
 
                 images_before_pickle-=1
