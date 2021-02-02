@@ -53,10 +53,7 @@ def build_model(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def VGG16(split_components=True,input_shape=256,direct_map=True):
-    if direct_map:
-        input_channels=8
-    else:
-        input_channels=1
+
     VGG_net = tf.keras.applications.VGG16(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False,weights=None)
 
@@ -73,11 +70,52 @@ def VGG16(split_components=True,input_shape=256,direct_map=True):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
-    if direct_map:
-        input_channels=8
+def EfficientCNN(split_components=True,input_shape=256,direct_map=True):
+    def fire_block(channels,stride=1):
+        input_features =tf.keras.layers.Input(input_shape=(None,None,channels))
+
+        fire=tf.keras.layers.Conv2D(channels//8,kernel_size=1,padding='same')(input_features)
+        fire=tf.keras.layers.BatchNormalization()(fire)
+        fire=tf.keras.layers.LeakyReLU()(fire)
+
+        fire1=tf.keras.layers.Conv2D(channels//2,kernel_size=3,padding='same',strides=(stride,stride))(fire)
+        fire1=tf.keras.layers.BatchNormalization()(fire1)
+        fire1=tf.keras.layers.LeakyReLU()(fire1)
+
+        fire2=tf.keras.layers.Conv2D(channels//2,kernel_size=3,padding='same',strides=(stride,stride))(fire)
+        fire2=tf.keras.layers.BatchNormalization()(fire2)
+        fire2=tf.keras.layers.LeakyReLU()(fire2)
+
+        fire=tf.keras.layers.concatenate([fire1,fire2])
+        return fire
+
+    input_image=tf.keras.layers.Input(shape=(input_shape,input_shape))
+    preprocessed=tf.keras.layers.Reshape((input_shape,input_shape,1))(input_image)
+    preprocessed=PreprocessingPipeline(direct_map)(preprocessed)
+
+    conv1=tf.keras.layers.Conv2D(64,kernel_size=3,padding='same')(preprocessed)
+    conv1=tf.keras.layers.BatchNormalization()(conv1)
+    conv1=tf.keras.layers.LeakyReLU()(conv1)
+
+    fire1=fire_block(64,2)(conv1)
+    fire2=fire_block(128)(fire1)
+    fire3=fire_block(128)(fire2)
+    fire4=fire_block(128,2)(fire3)
+    fire5=fire_block(256)(fire4)
+    fire6=fire_block(256)(fire5)
+    fire7=fire_block(256,2)(fire6)
+    fire8=fire_block(512)(fire7)
+    fire9=fire_block(512)(fire8)
+
+    if split_components:
+        CHO,JUNG,JONG=build_FC_split(fire9)
+        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
-        input_channels=1
+        x=build_FC_regular(fire9)
+        return tf.keras.models.Model(inputs=input_image,outputs=x)
+    
+def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
+
     InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False,weights=None)
 
@@ -95,10 +133,7 @@ def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def MobilenetV3(split_components=True,input_shape=256,direct_map=True):
-    if direct_map:
-        input_channels=8
-    else:
-        input_channels=1
+
     Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False, weights=None)
 
@@ -126,6 +161,7 @@ def PreprocessingPipeline(direct_map):
     if direct_map==True:
         preprocessing.add(DirectMapGeneration())
     return preprocessing
+
 def DirectMapGeneration():
     #Generate sobel filter for 8 direction maps
     sobel_filters=[
