@@ -15,7 +15,6 @@ import collections
 import tensorflow as tf
 import korean_manager
 from google_drive_downloader import GoogleDriveDownloader as gdd
-from GoogleDrive import Create_Service
 #bool type for arguments
 def str2bool(v):
     if isinstance(v, bool):

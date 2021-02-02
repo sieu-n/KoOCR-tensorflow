@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
+  #Implementation of GlobalWeightedAveragePooling
   def __init__(self):
     self.num_outputs = num_outputs
 
