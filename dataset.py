@@ -6,6 +6,7 @@ import _pickle as pickle    #cPickle
 import korean_manager
 import random
 import progressbar
+
 class DataPickleLoader():
     #Load data patch by patch
     def __init__(self,patch_size=10,data_path='./data',val_data_path='./val_data',split_components=True,val_data=.1):

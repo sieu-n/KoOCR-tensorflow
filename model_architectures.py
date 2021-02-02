@@ -1,8 +1,9 @@
 import tensorflow as tf
 import numpy as np
 import korean_manager
+import CustomLayers
 
-def build_FC_split(x,tag=''):
+def build_FC_split(x,GAP,tag=''):
     x=tf.keras.layers.Flatten()(x)
     x=tf.keras.layers.Dense(1024)(x)
 
@@ -73,7 +74,7 @@ def VGG16(split_components=True,input_shape=256,direct_map=True):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-def EfficientCNN(split_components=True,input_shape=256,direct_map=True):
+def EfficientCNN(split_components=True,input_shape=256,direct_map=True,GAP=''):
     def fire_block(channels,stride=1):
         input_features =tf.keras.layers.Input(input_shape=(None,None,channels))
 

@@ -69,7 +69,6 @@ def pickle_AIHub_images():
     images_before_pickle=args.pickle_size
     pickle_idx=0
     image_arr,label_arr=[],[]
-    test_start=(1-args.val_ratio)*len(anno['annotations'])//args.pickle_size
 
     for x in progressbar.progressbar(anno['annotations']):
         #Save data split into pickle
@@ -77,7 +76,7 @@ def pickle_AIHub_images():
             image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
             #Split train and test data
-            if pickle_idx<=test_start:
+            if random.random()<args.val_ratio:
                 file_path=args.pickle_path
             else:
                 file_path=args.val_path
@@ -109,7 +108,6 @@ def pickle_AIHub_images():
 
     images_before_pickle=args.pickle_size
     pickle_idx=0
-    test_start=(1-args.val_ratio)*len(anno['annotations'])//args.pickle_size
     image_arr,label_arr=[],[]
 
     for x in progressbar.progressbar(anno['annotations']):
@@ -118,7 +116,7 @@ def pickle_AIHub_images():
             image_arr,label_arr=[],[]
             images_before_pickle=args.pickle_size
             #Split train and test data
-            if pickle_idx<=test_start:
+            if random.random()<args.val_ratio:
                 file_path=args.pickle_path
             else:
                 file_path=args.val_path
