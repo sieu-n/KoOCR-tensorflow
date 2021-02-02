@@ -69,7 +69,7 @@ def pickle_AIHub_images():
     images_before_pickle=args.pickle_size
     pickle_idx=0
     image_arr,label_arr=[],[]
-    test_start=len(anno['annotations'])//args.pickle_size
+    test_start=(1-args.val_ratio)*len(anno['annotations'])//args.pickle_size
 
     for x in progressbar.progressbar(anno['annotations']):
         #Save data split into pickle
@@ -109,7 +109,7 @@ def pickle_AIHub_images():
 
     images_before_pickle=args.pickle_size
     pickle_idx=0
-    test_start=len(anno['annotations'])//args.pickle_size
+    test_start=(1-args.val_ratio)*len(anno['annotations'])//args.pickle_size
     image_arr,label_arr=[],[]
 
     for x in progressbar.progressbar(anno['annotations']):
@@ -128,11 +128,12 @@ def pickle_AIHub_images():
         #Append to list if character type of data
         if (x['attributes']['type']=='글자(음절)'):
             path=os.path.join(args.AIHub_path,'syllable/'+x['image_id']+'.png')
-            im=tf.keras.preprocessing.image.load_img(path,color_mode='grayscale',target_size=(args.image_size,args.image_size))
-            image_arr.append(im)
-            label_arr.append(x['text'])
+            if os.path.isfile(path)==True:
+                im=tf.keras.preprocessing.image.load_img(path,color_mode='grayscale',target_size=(args.image_size,args.image_size))
+                image_arr.append(im)
+                label_arr.append(x['text'])
 
-            images_before_pickle-=1
+                images_before_pickle-=1
 
 def download_AIHub_GoogleDrive():
     #Download AIHUB OCR data from Google Drive

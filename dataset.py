@@ -19,7 +19,7 @@ class DataPickleLoader():
         file_list=fnmatch.filter(os.listdir(data_path), '*.pickle')
         val_file_list=fnmatch.filter(os.listdir(val_data_path), '*.pickle')
 
-        self.file_list=random.shuffle(file_list)
+        self.file_list=file_list
         self.val_file_list=val_file_list
 
         self.mix_indicies()

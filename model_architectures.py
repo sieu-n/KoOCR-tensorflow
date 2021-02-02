@@ -2,13 +2,13 @@ import tensorflow as tf
 import numpy as np
 import korean_manager
 
-def build_FC_split(x):
+def build_FC_split(x,tag=''):
     x=tf.keras.layers.Flatten()(x)
     x=tf.keras.layers.Dense(1024)(x)
 
-    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(x)
-    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
-    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
+    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name=tag+'CHOSUNG')(x)
+    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name=tag+'JUNGSUNG')(x)
+    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name=tag+'JONGSUNG')(x)
     return CHO,JUNG,JONG
 
 def build_FC_regular(x):
@@ -53,7 +53,10 @@ def build_model(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def VGG16(split_components=True,input_shape=256,direct_map=True):
-
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
     VGG_net = tf.keras.applications.VGG16(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False,weights=None)
 
@@ -85,7 +88,7 @@ def EfficientCNN(split_components=True,input_shape=256,direct_map=True):
         fire2=tf.keras.layers.Conv2D(channels//2,kernel_size=3,padding='same',strides=(stride,stride))(fire)
         fire2=tf.keras.layers.BatchNormalization()(fire2)
         fire2=tf.keras.layers.LeakyReLU()(fire2)
-
+        
         fire=tf.keras.layers.concatenate([fire1,fire2])
         return fire
 
@@ -106,16 +109,25 @@ def EfficientCNN(split_components=True,input_shape=256,direct_map=True):
     fire7=fire_block(256,2)(fire6)
     fire8=fire_block(512)(fire7)
     fire9=fire_block(512)(fire8)
+    fire10=fire_block(512)(fire9)
+    fire11=fire_block(512)(fire10)
 
+    
     if split_components:
-        CHO,JUNG,JONG=build_FC_split(fire9)
+        mid1_CHO,mid1_JUNG,mid1_JONG=build_FC_split(fire5,tag='mid1_')
+        mid2_CHO,mid2_JUNG,mid2_JONG=build_FC_split(fire7,tag='mid2_')
+        CHO,JUNG,JONG=build_FC_split(fire11)
+        
         return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
-        x=build_FC_regular(fire9)
+        x=build_FC_regular(fire11)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
     
 def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
-
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
     InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False,weights=None)
 
@@ -133,7 +145,10 @@ def InceptionResnetV2(split_components=True,input_shape=256,direct_map=True):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def MobilenetV3(split_components=True,input_shape=256,direct_map=True):
-
+    if direct_map:
+        input_channels=8
+    else:
+        input_channels=1
     Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(input_shape,input_shape,input_channels),
                                                include_top=False, weights=None)
 
