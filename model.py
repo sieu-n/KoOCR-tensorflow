@@ -2,10 +2,10 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import dataset
-import korean_manager
+import utils.korean_manager
 from PIL import Image
 import random
-import model_architectures
+import utils.model_architectures
 import os
 from IPython.display import clear_output
 import gc

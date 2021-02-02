@@ -44,7 +44,7 @@ def evaluate(model,key_text):
         for idx,pred_ in enumerate(pred):
             total_num+=1
             correct_num+=data['label'][idx] in pred_
-            
+    return 100*correct_num/total_num
 if __name__=='__main__':
     args = parser.parse_args()
 
@@ -53,3 +53,4 @@ if __name__=='__main__':
     acc=evaluate(KoOCR,'handwritten')
     print('Handwritten OCR Accuracy:',acc)
     acc=evaluate(KoOCR,'printed')
+    print('Printed OCR Accuracy:',acc)
