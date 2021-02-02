@@ -3,7 +3,7 @@
 import datetime
 import pickle
 import os
-def Create_Service(client_secret_file='./files/credentials.json', api_name='drive', api_version='v3', *scopes=['http://www.googleapis.com/auth/drive']):
+def Create_Service(client_secret_file='./files/credentials.json', api_name='drive', api_version='v3', scopes=['http://www.googleapis.com/auth/drive']):
     print(client_secret_file, api_name, api_version, scopes, sep='-')
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
