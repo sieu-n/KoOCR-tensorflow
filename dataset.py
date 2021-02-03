@@ -40,7 +40,7 @@ class DataPickleLoader():
             labels=korean_manager.korean_numpy(data['label'])
         
         for pkl in self.val_file_list[1:]:
-            data=self.load_pickle(os.path.join(self.data_path,pkl))
+            data=self.load_pickle(os.path.join(self.val_data_path,pkl))
             images=np.concatenate((images,data['image']),axis=0)
 
             if self.split_components==True:

@@ -5,14 +5,14 @@ import dataset
 import utils.korean_manager as korean_manager
 from PIL import Image
 import random
-import utils.model_architectures
+import utils.model_architectures as model_architectures
 import os
 from IPython.display import clear_output
 import gc
 import datetime
 
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',network_type='custom',image_size=256,direct_map=True):
+    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='custom',image_size=256,direct_map=True):
         self.split_components=split_components
 
         self.charset=korean_manager.load_charset()
@@ -21,7 +21,8 @@ class KoOCR():
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
         else:
-            self.model=model_architectures.model_list[network_type](split_components=split_components,input_shape=image_size,direct_map=direct_map)
+            settings={'split_components':split_components,'input_shape':input_shape,'direct_map':direct_map,'fc_link':fc_link}
+            self.model=model_architectures.model_list[network_type](settings)
     def predict(self,image,n=1):
         if self.split_components:
             return self.predict_split(image,n)
