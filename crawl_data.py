@@ -133,6 +133,7 @@ def pickle_AIHub_images():
                 image_arr.append(tf.keras.preprocessing.image.img_to_array(im)[:,:,0])
                 label_arr.append(x['text'])
 
+                os.remove(true_path)
                 images_before_pickle-=1
 
 def download_AIHub_GoogleDrive():
