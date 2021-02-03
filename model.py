@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import dataset
-import utils.korean_manager
+import utils.korean_manager as korean_manager
 from PIL import Image
 import random
 import utils.model_architectures

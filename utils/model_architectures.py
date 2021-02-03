@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import korean_manager
-import utils.CustomLayers
+import CustomLayers
 
 def build_FC_split(x,GAP,tag=''):
     x=tf.keras.layers.Flatten()(x)

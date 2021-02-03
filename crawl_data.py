@@ -13,7 +13,7 @@ import progressbar
 import threading
 import collections
 import tensorflow as tf
-import utils.korean_manager
+import utils.korean_manager as korean_manager
 from google_drive_downloader import GoogleDriveDownloader as gdd
 #bool type for arguments
 def str2bool(v):

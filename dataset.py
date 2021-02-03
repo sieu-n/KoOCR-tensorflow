@@ -3,7 +3,7 @@ import os
 import tensorflow as tf
 import fnmatch
 import _pickle as pickle    #cPickle
-import korean_manager
+import utils.korean_manager as korean_manager
 import random
 import progressbar
 
