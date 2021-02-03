@@ -99,6 +99,8 @@ def pickle_AIHub_images():
                 im=tf.keras.preprocessing.image.load_img(true_path,color_mode='grayscale',target_size=(args.image_size,args.image_size))
                 image_arr.append(tf.keras.preprocessing.image.img_to_array(im)[:,:,0])
                 label_arr.append(x['text'])
+
+                os.remove(true_path)
                 images_before_pickle-=1
     #Unpickle Printed files
     f = open(os.path.join(args.AIHub_path,'printed_label.json')) 
