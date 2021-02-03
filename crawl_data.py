@@ -12,7 +12,6 @@ import _pickle as pickle    #cPickle
 import progressbar
 import threading
 import collections
-import tensorflow as tf
 import utils.korean_manager as korean_manager
 from google_drive_downloader import GoogleDriveDownloader as gdd
 #bool type for arguments
@@ -133,7 +132,7 @@ def pickle_AIHub_images():
                 image_arr.append(tf.keras.preprocessing.image.img_to_array(im)[:,:,0])
                 label_arr.append(x['text'])
 
-                os.remove(true_path)
+                os.remove(path)
                 images_before_pickle-=1
 
 def download_AIHub_GoogleDrive():
