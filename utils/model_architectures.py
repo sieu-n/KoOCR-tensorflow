@@ -77,9 +77,9 @@ def VGG16(settings):
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
 def EfficientCNN(settings):
-    def fire_block(channels,stride=1):
-        fire=tf.keras.layers.Conv2D(channels//8,kernel_size=1,padding='same')
-        fire=tf.keras.layers.BatchNormalization()(fire)
+    def fire_block(x,channels,stride=1):
+        fire=tf.keras.layers.Conv2D(channels//8,kernel_size=1,padding='same')(x)
+        firel=tf.keras.layers.BatchNormalization()(fire)
         fire=tf.keras.layers.LeakyReLU()(fire)
 
         fire1=tf.keras.layers.Conv2D(channels//2,kernel_size=3,padding='same',strides=(stride,stride))(fire)
@@ -89,7 +89,7 @@ def EfficientCNN(settings):
         fire2=tf.keras.layers.Conv2D(channels//2,kernel_size=3,padding='same',strides=(stride,stride))(fire)
         fire2=tf.keras.layers.BatchNormalization()(fire2)
         fire2=tf.keras.layers.LeakyReLU()(fire2)
-        
+
         fire=tf.keras.layers.concatenate([fire1,fire2])
         return fire
 
@@ -101,17 +101,17 @@ def EfficientCNN(settings):
     conv1=tf.keras.layers.BatchNormalization()(conv1)
     conv1=tf.keras.layers.LeakyReLU()(conv1)
 
-    fire1=fire_block(64,2)(conv1)
-    fire2=fire_block(128)(fire1)
-    fire3=fire_block(128)(fire2)
-    fire4=fire_block(128,2)(fire3)
-    fire5=fire_block(256)(fire4)
-    fire6=fire_block(256)(fire5)
-    fire7=fire_block(256,2)(fire6)
-    fire8=fire_block(512)(fire7)
-    fire9=fire_block(512)(fire8)
-    fire10=fire_block(512)(fire9)
-    fire11=fire_block(512)(fire10)
+    fire1=fire_block(conv1,64,2)
+    fire2=fire_block(fire1,128)
+    fire3=fire_block(fire2,128)
+    fire4=fire_block(fire3,128,2)
+    fire5=fire_block(fire4,256)
+    fire6=fire_block(fire5,256)
+    fire7=fire_block(fire6,256,2)
+    fire8=fire_block(fire7,512)
+    fire9=fire_block(fire8,512)
+    fire10=fire_block(fire9,512)
+    fire11=fire_block(fire10,512)
 
     
     if settings['split_components']:
