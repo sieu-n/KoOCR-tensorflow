@@ -21,7 +21,7 @@ class KoOCR():
         if weight_path:
             self.model=tf.keras.models.load_model(weight_path)
         else:
-            settings={'split_components':split_components,'input_shape':input_shape,'direct_map':direct_map,'fc_link':fc_link}
+            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
             self.model=model_architectures.model_list[network_type](settings)
     def predict(self,image,n=1):
         if self.split_components:

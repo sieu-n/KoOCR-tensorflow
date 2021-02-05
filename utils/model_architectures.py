@@ -78,9 +78,7 @@ def VGG16(settings):
 
 def EfficientCNN(settings):
     def fire_block(channels,stride=1):
-        input_features =tf.keras.layers.Input(input_shape=(None,None,channels))
-
-        fire=tf.keras.layers.Conv2D(channels//8,kernel_size=1,padding='same')(input_features)
+        fire=tf.keras.layers.Conv2D(channels//8,kernel_size=1,padding='same')
         fire=tf.keras.layers.BatchNormalization()(fire)
         fire=tf.keras.layers.LeakyReLU()(fire)
 
@@ -168,7 +166,7 @@ def MobilenetV3(settings):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-model_list={'custom':build_model,'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN}
+model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN}
 
 def PreprocessingPipeline(direct_map):
     preprocessing=tf.keras.models.Sequential()
