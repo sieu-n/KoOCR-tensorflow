@@ -2,12 +2,13 @@ import tensorflow as tf
 
 class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
   #Implementation of GlobalWeightedAveragePooling
-  def __init__(self):
+  def __init__(self,kernel_initializer=tf.keras.initializer.RandomNormal(stddev=0.01)):
     #self.num_outputs = num_outputs
+    self.kernel_initializer =kernel_initializer
     super(GlobalWeightedAveragePooling, self).__init__()
   def build(self, input_shape):
     #input_shape=(w,h,c)
-    self.kernel = self.add_weight("kernel",shape=input_shape[1:])
+    self.kernel = self.add_weight("kernel",shape=input_shape[1:],initializer=self.kernel_initializer)
 
   def call(self, input):
     com=tf.math.multiply(input, self.kernel)
