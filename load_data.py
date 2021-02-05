@@ -22,8 +22,8 @@ if __name__ =='__main__':
     gdd.download_file_from_google_drive(file_id=data_link,dest_path=os.path.join(data_path,'data.zip'),unzip=False)
     gdd.download_file_from_google_drive(file_id=val_data_link,dest_path=os.path.join(val_data_path,'val_data.zip'),unzip=False)
 
-    zf = zipfile.ZipFile(os.path.join(data_path,'data.zip'))
-    
+    print('Unzipping data...')
+    zf = zipfile.ZipFile(os.path.join(data_path,'data.zip'))    
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(unzip, zf.infolist())
     os.remove(os.path.join(data_path,'data.zip'))
