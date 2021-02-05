@@ -8,9 +8,9 @@ if __name__ =='__main__':
     val_data_path='./val_data'
     data_path='./data'
     #Create data directory
-    if os.path.isdir(val_data_path):
+    if os.path.isdir(val_data_path)==False:
         os.makedirs(val_data_path)
-    if os.path.isdir(data_path):
+    if os.path.isdir(data_path)==False:
         os.makedirs(data_path)
 
     print("Downloading data...")
