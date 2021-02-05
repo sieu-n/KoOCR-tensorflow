@@ -1,6 +1,11 @@
 
 from google_drive_downloader import GoogleDriveDownloader as gdd
+import concurrent.futures
 import os
+import zipfile
+
+def unzip(file):
+    zf.extract(file)
 if __name__ =='__main__':
     val_data_link='1WOP_sQsu4vXCY739VGgiWIbHyOozcjHw'
     data_link='1HBu43eBO-vXJsJp8crEp_Iih3_U7QSR2'
@@ -14,9 +19,17 @@ if __name__ =='__main__':
         os.makedirs(data_path)
 
     print("Downloading data...")
-    gdd.download_file_from_google_drive(file_id=data_link,dest_path=os.path.join(data_path,'data.zip'),unzip=True)
-    gdd.download_file_from_google_drive(file_id=val_data_link,dest_path=os.path.join(val_data_path,'val_data.zip'),unzip=True)
+    gdd.download_file_from_google_drive(file_id=data_link,dest_path=os.path.join(data_path,'data.zip'),unzip=False)
+    gdd.download_file_from_google_drive(file_id=val_data_link,dest_path=os.path.join(val_data_path,'val_data.zip'),unzip=False)
 
+    zf = zipfile.ZipFile(os.path.join(data_path,'data.zip'))
+    
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(unzip, zf.infolist())
     os.remove(os.path.join(data_path,'data.zip'))
+
+    zf = zipfile.ZipFile(os.path.join(val_data_path,'val_data.zip'))
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(unzip, zf.infolist())
     os.remove(os.path.join(val_data_path,'val_data.zip'))
     print("Downloading complete...")
