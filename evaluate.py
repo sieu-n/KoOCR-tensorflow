@@ -29,6 +29,12 @@ parser.add_argument("--patch_size", type=int,default=10)
 parser.add_argument("--weights", type=str,default='')
 parser.add_argument("--top_n", type=int,default=5)
 
+def generate_confusion_matrix(pred_labels,true_labels):
+    #Generate confusion matrix of each component based on sklearn, 
+    #Only call when split_components is True.
+    types=['CHOSUNG','JUNGSUNG','JONGSUNG']
+    for t in types:
+        y_true=types[t]
 def evaluate(model,key_text):
     #Evaluate data from specific directory
     correct_num,total_num=0,0
@@ -45,6 +51,7 @@ def evaluate(model,key_text):
             total_num+=1
             correct_num+=data['label'][idx] in pred_
     return 100*correct_num/total_num
+
 if __name__=='__main__':
     args = parser.parse_args()
 

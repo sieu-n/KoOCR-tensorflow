@@ -2,7 +2,6 @@ from google_drive_downloader import GoogleDriveDownloader as gdd
 import concurrent.futures
 import os
 import zipfile
-from pyunpack import Archive
 from py7zr import unpack_7zarchive
 import shutil
 
@@ -20,7 +19,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 parser = argparse.ArgumentParser(description='Download dataset')
-parser.add_argument("--7z", type=str2bool,default=True)
+parser.add_argument("--sevenzip", type=str2bool,default=True)
 
 def unzip_data(file):
     zf.extract(file,path='./data/')
@@ -77,7 +76,7 @@ if __name__ =='__main__':
     if os.path.isdir(data_path)==False:
         os.makedirs(data_path)
 
-    if args.7z:
+    if args.sevenzip:
         unzip_7z()
     else:
         unzip_zip()
