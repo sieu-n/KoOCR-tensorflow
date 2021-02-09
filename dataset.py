@@ -62,7 +62,7 @@ class DataPickleLoader():
             return images,labels
 
     def get(self):
-        print(f"Loading dataset patch {self.current_idx}/{len(self.file_list)//self.patch_size+1}...")
+        print(f"Loading dataset patch {self.current_idx//self.patch_size}/{len(self.file_list)//self.patch_size+1}...")
         #Check if end of list
         did_reset=False
         next_idx=self.current_idx+self.patch_size
