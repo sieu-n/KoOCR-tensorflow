@@ -22,7 +22,7 @@ class DataPickleLoader():
 
         self.file_list=file_list
         self.val_file_list=val_file_list
-
+        np.random.shuffle(self.val_file_list)
         self.mix_indicies()
 
     def load_pickle(self,path):
@@ -30,7 +30,7 @@ class DataPickleLoader():
             data=pickle.load(handle)
         return data
 
-    def get_val(self):
+    def get_val(self,prob=0.3):
         data=self.load_pickle(os.path.join(self.val_data_path,self.val_file_list[0]))
         images=data['image']
 
@@ -39,7 +39,7 @@ class DataPickleLoader():
         else:
             labels=korean_manager.korean_numpy(data['label'])
         
-        for pkl in self.val_file_list[1:]:
+        for pkl in self.val_file_list[1:int(len(self.val_file_list)*prob)]:
             data=self.load_pickle(os.path.join(self.val_data_path,pkl))
             images=np.concatenate((images,data['image']),axis=0)
 
@@ -62,7 +62,7 @@ class DataPickleLoader():
             return images,labels
 
     def get(self):
-        print("Loading dataset patch...")
+        print(f"Loading dataset patch {self.current_idx}/{len(self.file_list)//self.patch_size+1}...")
         #Check if end of list
         did_reset=False
         next_idx=self.current_idx+self.patch_size
