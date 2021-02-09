@@ -41,7 +41,7 @@ def generate_confusion_matrix(model,key_text):
     types=['CHOSUNG','JUNGSUNG','JONGSUNG']
     
     confusion_list={'CHOSUNG':0,'JUNGSUNG':0,'JONGSUNG':0}
-
+    index_list={'CHOSUNG':korean_manager.CHOSUNG_LIST,'JUNGSUNG':korean_manager.JUNGSUNG_LIST,'JONGSUNG':korean_manager.JONGSUNG_LIST}
     file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
     for x in progressbar.progressbar(file_list):
         #Read pickle
@@ -50,18 +50,26 @@ def generate_confusion_matrix(model,key_text):
             data=pickle.load(handle)
         #Predict image 
         pred=model.model.predict(data['image'])
+        pred_dict={}
+        for idx,t in enumerate(types):
+            pred_dict[t]=np.argmax(pred[idx],axis=1)
+
         cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         truth_label={'CHOSUNG':cho, 'JUNGSUNG':jung,'JONGSUNG':jong}
         #Add to confusion_matrix
         for t in types:
-            confusion_list[t]=confusion_matrix(truth_label[t],pred[t])+confusion_list[t]
+            labels=range(len(index_list[t]))
+            confusion_list[t]=confusion_matrix(truth_label[t],pred_dict[t],labels=labels)+confusion_list[t]
     
     #Plot confusion matrix using seaborn
-    index_list={'CHOSUNG':korean_manager.CHOSUNG_LIST,'JUNGSUNG':korean_manager.JUNGSUNG_LIST,'JONGSUNG':korean_manager.JONGSUNG_LIST}
+    
     for t in types:
         df_cm = pd.DataFrame(confusion_list[t], index=index_list[t], columns=index_list[t])
+
+        sn.set(rc={'figure.figsize':(20,18)})
         ax = sn.heatmap(df_cm, cmap='Oranges', annot=True)
-        ax.savefig(os.path.join('./logs',key_text+"_heatmap.png"))
+        fig = ax.get_figure()
+        fig.savefig(os.path.join('./logs',key_text+'_'+t+".png"))
         
 def evaluate(model,key_text):
     #Evaluate top-n accuracy
