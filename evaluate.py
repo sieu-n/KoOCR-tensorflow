@@ -50,9 +50,11 @@ def generate_confusion_matrix(model,key_text):
             data=pickle.load(handle)
         #Predict image 
         pred=model.model.predict(data['image'])
+        cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
+        truth_label={'CHOSUNG':cho, 'JUNGSUNG':jung,'JONGSUNG':jong}
         #Add to confusion_matrix
         for t in types:
-            confusion_list[t]+=confusion_matrix(data['label'][t],pred[t])
+            confusion_list[t]=confusion_matrix(truth_label[t],pred[t])+confusion_list[t]
     
     #Plot confusion matrix using seaborn
     index_list={'CHOSUNG':korean_manager.CHOSUNG_LIST,'JUNGSUNG':korean_manager.JUNGSUNG_LIST,'JONGSUNG':korean_manager.JONGSUNG_LIST}
