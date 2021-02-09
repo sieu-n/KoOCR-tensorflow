@@ -85,8 +85,10 @@ if __name__=='__main__':
 
     acc=evaluate(KoOCR,'handwritten')
     print('Handwritten OCR Accuracy:',acc)
-    generate_confusion_matrix(KoOCR,'handwritten')
+    if args.confusion_matrix:
+        generate_confusion_matrix(KoOCR,'handwritten')
 
     acc=evaluate(KoOCR,'printed')
     print('Printed OCR Accuracy:',acc)
-    generate_confusion_matrix(KoOCR,'printed')
+    if args.confusion_matrix:
+        generate_confusion_matrix(KoOCR,'printed')
