@@ -45,7 +45,8 @@ def unzip_zip():
     data_link='1HBu43eBO-vXJsJp8crEp_Iih3_U7QSR2'
 
     print("Downloading data...")
-
+    gdd.download_file_from_google_drive(file_id=data_link,dest_path=os.path.join(data_path,'data.zip'),unzip=False)
+    gdd.download_file_from_google_drive(file_id=val_data_link,dest_path=os.path.join(val_data_path,'val_data.zip'),unzip=False)
     
     print('Unzipping data...')
     with zipfile.ZipFile(os.path.join(data_path,'data.zip'), 'r') as zip_ref:
