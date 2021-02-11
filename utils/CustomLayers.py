@@ -12,7 +12,10 @@ class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
   def build(self, input_shape):
     #input_shape=(w,h,c)
     self.kernel = self.add_weight("kernel",shape=input_shape[1:],initializer=self.kernel_initializer)
-
+  def get_config(self):
+    config = super().get_config().copy()
+    config.update({'kernel': self.kernel})
+    return config
   def call(self, input):
     com=tf.math.multiply(input, self.kernel)
     return tf.math.reduce_sum(com,axis=[1,2])
@@ -101,12 +104,3 @@ class MultiOutputGradCAM:
       
       heatmap_list.append(heatmap)
 		return heatmap_list
-
-  def overlay_heatmap(self, heatmap, image, alpha=0.5,colormap=cv2.COLORMAP_VIRIDIS):
-		# apply the supplied color map to the heatmap and then
-		# overlay the heatmap on the input image
-		heatmap = cv2.applyColorMap(heatmap, colormap)
-		output = cv2.addWeighted(image, alpha, heatmap, 1 - alpha, 0)
-		# return a 2-tuple of the color mapped heatmap and the output,
-		# overlaid image
-		return (heatmap, output)

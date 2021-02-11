@@ -28,15 +28,35 @@ parser.add_argument("--data_path", type=str,default='./val_data')
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
+
+parser.add_argument("--accuracy", type=str2bool,default=True)
 parser.add_argument("--confusion_matrix", type=str2bool,default=True)
+parser.add_argument("--class_activation", type=str2bool,default=True)
+parser.add_argument("--class_activation_n", type=int,default=10)
 
 parser.add_argument("--weights", type=str,default='')
 parser.add_argument("--top_n", type=int,default=5)
 
+def generate_CAM(model,key_text):
+    #Pick one pickle, and load 10 data from file
+    file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
+    np.random.shuffle(file_list)
+    with open(os.path.join(),'rb') as handle:
+        data=pickle.load(handle)
+    indicies=np.random.choice(len(data['image']), args.class_activation_n, replace=False)
+    
+    fig = plt.figure(figsize=(args.class_activation_n*2,8))
+    for idx,data_idx in enumerate(indicies):
+        plt.subplot(4,args.class_activation_n,idx+1)
+
+        plt.imshow(data[data_idx],cmap='gray')
+        plt.axis('off')
+    plt.savefig('./logs/CAM_Sample.png')
+
 def generate_confusion_matrix(model,key_text):
     #Generate confusion matrix of each component based on sklearn, 
     #Only call when split_components is True.
-    if not args.split_components:
+    if not args.split_components: 
         return
     sns.set(font='Noto Sans CJK JP') 
     
@@ -96,12 +116,17 @@ if __name__=='__main__':
 
     KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights)
 
-    acc=evaluate(KoOCR,'handwritten')
-    print('Handwritten OCR Accuracy:',acc)
+    if args.accuracy:
+        acc=evaluate(KoOCR,'handwritten')
+        print('Handwritten OCR Accuracy:',acc)
+        acc=evaluate(KoOCR,'printed')
+        print('Printed OCR Accuracy:',acc)
+
     if args.confusion_matrix:
         generate_confusion_matrix(KoOCR,'handwritten')
-
-    acc=evaluate(KoOCR,'printed')
-    print('Printed OCR Accuracy:',acc)
-    if args.confusion_matrix:
+        print('Handwritten confusion matrix generated.')
         generate_confusion_matrix(KoOCR,'printed')
+        print('Printed confusion matrix generated.')
+
+    if args.class_activation:
+
