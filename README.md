@@ -1,5 +1,5 @@
 
-# DCGAN-CelebA-tensorflow (Korean README)
+# KoOCR-tensorflow (Korean README)
 
 Tensorflow 딥러닝 기반의 오픈 소스 한글 OCR 엔진.
 Open-source Korean OCR engine based on Tensorflow, deep-learning.
