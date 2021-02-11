@@ -21,11 +21,6 @@ def str2bool(v):
 parser = argparse.ArgumentParser(description='Download dataset')
 parser.add_argument("--sevenzip", type=str2bool,default=True)
 
-def unzip_data(file):
-    zf.extract(file,path='./data/')
-def unzip_val_data(file):
-    zf.extract(file,path='./val_data/')
-
 def unzip_7z():
     val_data_7z_link='17NusZQw2RKpBIvCKp6hW6RuJKY43SWqz'
     data_7z_link='1-I3BtCzYE7swpKERGygRhlMnim2xX0_2'

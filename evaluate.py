@@ -48,15 +48,19 @@ def generate_CAM(model,key_text):
     
     fig = plt.figure(figsize=(args.class_activation_n*2,8))
     for idx,data_idx in enumerate(indicies):
-        plt.subplot(4,args.class_activation_n,idx+1)
-
         #Get Class Activation Map
         cam=MultiOutputGradCAM(KoOCR,data['label'][data_idx])
-        heatmap=cam.compute_heatmap(data['image'][data_idx])
+        heatmap_list=cam.compute_heatmap(data['image'][data_idx])
+        heatmap_list.append(None)
 
-        plt.imshow(heatmap)
-        plt.imshow(data['image'][data_idx],cmap='gray')
-        plt.axis('off')
+        for comp in range(4):
+            plt.subplot(4,args.class_activation_n,idx+1+args.class_activation_n*comp)
+
+            if heatmap_list[comp]:
+                plt.imshow(heatmap_list[comp])
+                
+            plt.imshow(data['image'][data_idx],cmap='gray')
+            plt.axis('off')
     plt.savefig('./logs/CAM_Sample.png')
     plt.clf()
 
