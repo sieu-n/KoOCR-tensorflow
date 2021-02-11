@@ -18,11 +18,10 @@ class KoOCR():
         self.charset=korean_manager.load_charset()
 
         #Build and load model
+        settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
+        self.model=model_architectures.model_list[network_type](settings)
         if weight_path:
-            self.model=tf.keras.models.load_model(weight_path)
-        else:
-            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
-            self.model=model_architectures.model_list[network_type](settings)
+            self.model.load_weights(weight_path)
     def predict(self,image,n=1):
         if self.split_components:
             return self.predict_split(image,n)
@@ -117,6 +116,7 @@ class KoOCR():
                     tf.summary.scalar('val_loss', history.history['accuracy'][0], step=step)
                     tf.summary.scalar('training_accuracy', history.history['val_loss'][0], step=step)
                     tf.summary.scalar('val_accuracy', history.history['val_accuracy'][0], step=step)
+        
 
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=train_dataset.get_val()
@@ -124,7 +124,7 @@ class KoOCR():
         self.compile_model(lr)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
-
+        
         for epoch in range(epochs):
             print('Training epoch',epoch)
             self.plot_val_image(val_data=(val_x,val_y))
@@ -143,6 +143,4 @@ class KoOCR():
                 clear_output(wait=True)
                 
             #Save weights in checkpoint
-            self.model.save('./logs/weights.h5')
-
-        
+            self.model.save_weights('./logs/weights.h5')
