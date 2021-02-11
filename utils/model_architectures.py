@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import utils.korean_manager as korean_manager
 import utils.CustomLayers as CustomLayers
+from utils.MelnykNet import melnyk_net
 
 def build_FC_split(x,GAP='',tag=''):
     if GAP=='':
@@ -22,38 +23,6 @@ def build_FC_regular(x):
     x=tf.keras.layers.Dense(1024)(x)
     x=tf.keras.layers.Dense(len(korean_manager.load_charset()),activation='softmax',name='output')(x)
     return x
-
-def HighPerformanceNet(settings):
-    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
-    preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
-
-    conv1=tf.keras.layers.Conv2D(64,kernel_size=3,padding='same')(preprocessed)
-    conv1=tf.keras.layers.BatchNormalization()(conv1)
-    conv1=tf.keras.layers.LeakyReLU()(conv1)
-
-    fire1=fire_block(64,2)(conv1)
-    fire2=fire_block(128)(fire1)
-    fire3=fire_block(128)(fire2)
-    fire4=fire_block(128,2)(fire3)
-    fire5=fire_block(256)(fire4)
-    fire6=fire_block(256)(fire5)
-    fire7=fire_block(256,2)(fire6)
-    fire8=fire_block(512)(fire7)
-    fire9=fire_block(512)(fire8)
-    fire10=fire_block(512)(fire9)
-    fire11=fire_block(512)(fire10)
-
-    
-    if settings['split_components']:
-        #mid1_CHO,mid1_JUNG,mid1_JONG=build_FC_split(fire5,tag='mid1_')
-        #mid2_CHO,mid2_JUNG,mid2_JONG=build_FC_split(fire7,tag='mid2_')
-        CHO,JUNG,JONG=build_FC_split(fire11,GAP=settings['fc_link'])
-        
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(fire11)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
         
 def VGG16(settings):
     if settings['direct_map']:
@@ -166,7 +135,9 @@ def MobilenetV3(settings):
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
 
-model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN}
+
+
+model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
 
 def PreprocessingPipeline(direct_map):
     preprocessing=tf.keras.models.Sequential()

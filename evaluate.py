@@ -38,6 +38,8 @@ def generate_confusion_matrix(model,key_text):
     #Only call when split_components is True.
     if not args.split_components:
         return
+    sns.set(font='Noto Sans CJK JP') 
+    
     types=['CHOSUNG','JUNGSUNG','JONGSUNG']
     
     confusion_list={'CHOSUNG':0,'JUNGSUNG':0,'JONGSUNG':0}
@@ -70,6 +72,7 @@ def generate_confusion_matrix(model,key_text):
         ax = sn.heatmap(df_cm, cmap='Oranges', annot=True)
         fig = ax.get_figure()
         fig.savefig(os.path.join('./logs',key_text+'_'+t+".png"))
+        plt.clf()
         
 def evaluate(model,key_text):
     #Evaluate top-n accuracy
