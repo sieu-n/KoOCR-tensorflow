@@ -10,11 +10,10 @@ import os
 from IPython.display import clear_output
 import gc
 import datetime
-
+from adabound import AdaBound
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='custom',image_size=256,direct_map=True):
         self.split_components=split_components
-
         self.charset=korean_manager.load_charset()
 
         #Build and load model
@@ -46,7 +45,7 @@ class KoOCR():
     def predict_split(self,image,n=1):
         #Predict the top-n classes of the image
         #k: top classes for each component to generate
-        #Returns top n characters that maximize (p|chosung)*(p|jungsung)*(p|jongsung)
+        #Returns top n characters that maximize pred(chosung)*pred(jungsung)*pred(jongsung)
         k=int(n**(1/3))+2
         if image.shape==(256,256):
             image=image.reshape((1,256,256))
@@ -85,9 +84,17 @@ class KoOCR():
         plt.savefig('./logs/image.png')
         print(pred_y)
             
-    def compile_model(self,lr):
+    def compile_model(self,lr,opt):
         #Compile model 
-        optimizer=tf.keras.optimizers.SGD(lr)
+        if opt =='sgd':
+            optimizer=tf.keras.optimizer.SGD(lr)
+        elif opt=='adam':
+            optimizer=tf.keras.optimizer.Adam(lr)
+        elif opt=='adabound':
+            optimizer=AdaBound(lr=lr,final_lr=lr*100,amsbound=False)
+        elif opt=='amsbound':
+            optimizer=AdaBound(lr=lr,final_lr=lr*100,amsbound=True)
+            
         if self.split_components:
             losses = {
                 "CHOSUNG": "categorical_crossentropy",
@@ -98,7 +105,7 @@ class KoOCR():
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
-    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound'):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -121,7 +128,7 @@ class KoOCR():
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=train_dataset.get_val()
 
-        self.compile_model(lr)
+        self.compile_model(lr,optimizer)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
         
