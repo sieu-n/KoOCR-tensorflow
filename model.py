@@ -17,10 +17,11 @@ class KoOCR():
         self.charset=korean_manager.load_charset()
 
         #Build and load model
-        settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
-        self.model=model_architectures.model_list[network_type](settings)
         if weight_path:
-            self.model.load_weights(weight_path)
+            self.model = tf.keras.models.load_model('./logs/model.h5')
+        else:
+            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
+            self.model=model_architectures.model_list[network_type](settings)
     def predict(self,image,n=1):
         if self.split_components:
             return self.predict_split(image,n)
@@ -87,9 +88,9 @@ class KoOCR():
     def compile_model(self,lr,opt):
         #Compile model 
         if opt =='sgd':
-            optimizer=tf.keras.optimizer.SGD(lr)
+            optimizer=tf.keras.optimizers.SGD(lr)
         elif opt=='adam':
-            optimizer=tf.keras.optimizer.Adam(lr)
+            optimizer=tf.keras.optimizers.Adam(lr)
         elif opt=='adabound':
             optimizer=AdaBound(lr=lr,final_lr=lr*100,amsbound=False)
         elif opt=='amsbound':

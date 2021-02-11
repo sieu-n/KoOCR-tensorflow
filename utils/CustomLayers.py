@@ -3,13 +3,15 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import utils.korean_manager as korean_manager
+@tf.keras.utils.register_keras_serializable()
 class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
 	#Implementation of GlobalWeightedAveragePooling
-	def __init__(self,kernel_initializer=tf.keras.initializers.RandomNormal(stddev=0.01)):
+	def __init__(self,kernel_initializer=tf.keras.initializers.RandomNormal(stddev=0.01),**kwargs):
 		#self.num_outputs = num_outputs
-		self.kernel_initializer =kernel_initializer
 		super(GlobalWeightedAveragePooling, self).__init__()
-    
+		self.kernel_initializer =kernel_initializer
+		super(GlobalWeightedAveragePooling, self).__init__(**kwargs)
+
 	def build(self, input_shape):
 		#input_shape=(w,h,c)
 		self.kernel = self.add_weight("kernel",shape=input_shape[1:],initializer=self.kernel_initializer)
