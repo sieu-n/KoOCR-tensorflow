@@ -27,7 +27,7 @@ class GlobalWeightedOutputAveragePooling(tf.keras.layers.Layer):
 	def __init__(self):
 		#self.num_outputs = num_outputs
 		super(GlobalWeightedOutputAveragePooling, self).__init__()
-    
+
 	def build(self, input_shape):
 		#input_shape=(w,h,c)
 		self.kernel = self.add_weight("kernel",shape=(input_shape[-1],))
@@ -93,11 +93,9 @@ class MultiOutputGradCAM:
 			# respect to the weights
 			weights = tf.reduce_mean(guidedGrads, axis=(0, 1))
 			cam = tf.reduce_sum(tf.multiply(weights, convOutputs), axis=-1)
-			# grab the spatial dimensions of the input image and resize
-			# the output class activation map to match the input image
-			# dimensions
+			# reshape
 			(w, h) = (image.shape[2], image.shape[1])
-			heatmap = cv2.resize(cam.numpy(), (w, h))
+			heatmap = tf.image.resize(cam, (w, h))
 			# normalize the heatmap such that all values lie in the range
 			# [0, 1], scale the resulting values to the range [0, 255],
 			# and then convert to an unsigned 8-bit integer
