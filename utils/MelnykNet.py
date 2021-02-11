@@ -3,15 +3,14 @@ import os
 
 import numpy as np
 
-from tensorflow.keras.layers.convolutional import Conv2D, MaxPooling2D, AveragePooling2D
-from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, GlobalAveragePooling2D, Activation, BatchNormalization
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input, Dense, Dropout, Flatten, Reshape, GlobalAveragePooling2D, Activation, BatchNormalization, Conv2D, MaxPooling2D, AveragePooling2D
+from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.initializers import RandomNormal
 
 from utils.CustomLayers import GlobalWeightedAveragePooling
-from utils.model_architectures import PreprocessingPipeline,build_FC_split,build_FC_regular
+import utils.model_architectures as model_architectures
 
 def melnyk_net(settings):	
 	if settings['fc_link'] == 'GWAP':
@@ -21,12 +20,12 @@ def melnyk_net(settings):
 	else:
 		GlobalAveragePooling = Flatten()
 
-    random_normal = RandomNormal(stddev=0.001) # output layer initializer
-    reg=0
+	random_normal = RandomNormal(stddev=0.001)
+	reg=0
 
-	input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
-    preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+	input_image=Input(shape=(settings['input_shape'],settings['input_shape']))
+	preprocessed=Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
+	preprocessed=model_architectures.PreprocessingPipeline(settings['direct_map'])(preprocessed)
 
 	x = Conv2D(64, (3, 3), padding='same', strides=(1, 1), kernel_initializer='he_normal', use_bias=False, 
 		kernel_regularizer=l2(reg), bias_regularizer=l2(reg))(preprocessed)
@@ -107,13 +106,11 @@ def melnyk_net(settings):
 	x = Activation('relu')(x)
 
 	if settings['split_components']:
-        #mid1_CHO,mid1_JUNG,mid1_JONG=build_FC_split(fire5,tag='mid1_')
-        #mid2_CHO,mid2_JUNG,mid2_JONG=build_FC_split(fire7,tag='mid2_')
-        CHO,JUNG,JONG=build_FC_split(x,GAP=settings['fc_link'])
+		CHO,JUNG,JONG=model_architectures.build_FC_split(x,GAP=settings['fc_link'])
         
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(x)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
+		return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+	else:
+		x=model_architectures.build_FC_regular(x)
+		return Model(inputs=input_image,outputs=x)
 
 	return model
