@@ -11,7 +11,7 @@ def build_FC_split(x,GAP='',tag=''):
         x=tf.keras.layers.GlobalAveragePooling2D()(x)
     elif GAP=='GWAP':
         x=CustomLayers.GlobalWeightedAveragePooling()(x)
-    x=tf.keras.layers.Dense(1024)(x)
+    #x=tf.keras.layers.Dense(1024)(x)
 
     CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name=tag+'CHOSUNG')(x)
     JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name=tag+'JUNGSUNG')(x)

@@ -13,13 +13,6 @@ from utils.CustomLayers import GlobalWeightedAveragePooling
 import utils.model_architectures as model_architectures
 
 def melnyk_net(settings):	
-	if settings['fc_link'] == 'GWAP':
-		GlobalAveragePooling = GlobalWeightedAveragePooling()
-	elif settings['fc_link'] == 'GAP':
-		GlobalAveragePooling = GlobalAveragePooling2D()
-	else:
-		GlobalAveragePooling = Flatten()
-
 	random_normal = RandomNormal(stddev=0.001)
 	reg=0
 

@@ -45,6 +45,7 @@ def korean_split(w):
     if ch1==-54:
       ch1,ch2,ch3=19,22,ord(w) - ord('ㄱ')+1
     return ch1,ch2,ch3
+
 def korean_split_numpy(words,to_text=False):
   # 한글 글자의 np array를 입력받아 초성, 중성, 종성을 각각의 array로 내보내는 함수
   cho,jung,jong=[],[],[]
