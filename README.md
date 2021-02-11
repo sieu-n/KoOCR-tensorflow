@@ -4,6 +4,8 @@
 Tensorflow 딥러닝 기반의 오픈 소스 한글 OCR 엔진.
 Open-source Korean OCR engine based on Tensorflow, deep-learning.
 
+![](files/hangeul_image.png)
+
 ## 개요
 - 중국어, 일본어 등 유사한 언어의 뛰어난 OCR 인식 성능에 비해 한글 인식에 대해서는 활발한 연구가 이루어지 않았다.
 - 쉽게 사용 가능한 고성능의 한글 OCR 프로젝트, 라이브러리가 많지 않았다. 
