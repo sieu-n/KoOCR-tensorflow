@@ -39,12 +39,12 @@ Google Drive에 업로드된 데이터셋을 다운로드 받아 `./data`, `./va
 ### crawl_data.py
 
 ```
-!python crawl_data.py 	--AIHub=true 
-						--clova=true
-						--image_size=96
-						--x_offset=8
-						--y_offset=8
-						--char_size=80   
+!python crawl_data.py   --AIHub=true 
+			--clova=true
+			--image_size=96
+			--x_offset=8
+			--y_offset=8
+			--char_size=80   
 ```
 데이터셋을 크롤링해서 다운로드받는다. load_data.py와 같은 역할을 한다. `x_offset`, `y_offset`, `char_size` 변수는 폰트를 이미지에 그릴 때 위치의 offset과 문자의 크기를 지정한다. 아래 표는 실험에서 사용한 이미지 크기에 따른 변수 설정값이다. 
  
@@ -70,11 +70,11 @@ pred=OCR_model.predict(image, n=5)
 
 ### train. py
 ```
-!python train.py 	--split_components=true 
-					--network=melnyk
-					--image_size=96
-					--direct_map=true
-					--epochs=10
+!python train.py--split_components=true 
+		--network=melnyk
+		--image_size=96
+		--direct_map=true
+		--epochs=10
 					...
 ```
  학습을 진행하는 파이썬 모듈인지만, 모델을 정의하고 `KoOCR.train`을 호출하는 역할을 할 뿐, 직접 `model.py`를 import 하고 훈련하는 것과 차이가 없다. 학습결과와 과정에 대한 모든 정보는 `./logs`에 저장되고, 가중치는 매 에포크마다 `./logs/weights.h5`에 저장된다. 
@@ -82,8 +82,8 @@ pred=OCR_model.predict(image, n=5)
 ### evaluate. py
 ```
 python evaluate.py	--weights='./logs/weights.h5'
-					--accuracy=true
-					--confusion_matrix=true
-					--class_activation=true
+			--accuracy=true
+			--confusion_matrix=true
+			--class_activation=true
 ```
 모델을 정확도, confusion matrix, CAM 3가지 방법으로 분석한다. 각 방법을 선택 해제하거나 top-n 정확도 등 각 방법의 세부적인 parameter 또한 설정할 수 있다. 
