@@ -1,9 +1,6 @@
 import model
 import dataset
-import tensorflow as tf
-import numpy as np
 import argparse
-import matplotlib.pyplot as plt
 import os
 
 #bool type for arguments

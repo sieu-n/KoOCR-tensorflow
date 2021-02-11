@@ -9,6 +9,7 @@ import fnmatch
 import utils.korean_manager as korean_manager
 import progressbar
 import _pickle as pickle    #cPickle
+from utils.CustomLayers import MultiOutputGradCAM
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 import pandas as pd
@@ -41,7 +42,7 @@ def generate_CAM(model,key_text):
     #Pick one pickle, and load 10 data from file
     file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
     np.random.shuffle(file_list)
-    with open(os.path.join(),'rb') as handle:
+    with open(os.path.join(args.data_path,file_list[0]),'rb') as handle:
         data=pickle.load(handle)
     indicies=np.random.choice(len(data['image']), args.class_activation_n, replace=False)
     
@@ -49,16 +50,22 @@ def generate_CAM(model,key_text):
     for idx,data_idx in enumerate(indicies):
         plt.subplot(4,args.class_activation_n,idx+1)
 
-        plt.imshow(data[data_idx],cmap='gray')
+        #Get Class Activation Map
+        cam=MultiOutputGradCAM(KoOCR,data['label'][data_idx])
+        heatmap=cam.compute_heatmap(data['image'][data_idx])
+
+        plt.imshow(heatmap)
+        plt.imshow(data['image'][data_idx],cmap='gray')
         plt.axis('off')
     plt.savefig('./logs/CAM_Sample.png')
+    plt.clf()
 
 def generate_confusion_matrix(model,key_text):
     #Generate confusion matrix of each component based on sklearn, 
     #Only call when split_components is True.
     if not args.split_components: 
         return
-    sns.set(font='Noto Sans CJK JP') 
+    sn.set(font='Noto Sans CJK JP') 
     
     types=['CHOSUNG','JUNGSUNG','JONGSUNG']
     
@@ -129,4 +136,7 @@ if __name__=='__main__':
         print('Printed confusion matrix generated.')
 
     if args.class_activation:
-
+        generate_CAM(KoOCR,'handwritten')
+        print('Handwritten CAM image generated.')
+        generate_CAM(KoOCR,'printed')
+        print('Printed CAM image generated.')
