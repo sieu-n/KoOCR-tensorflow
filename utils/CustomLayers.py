@@ -16,7 +16,7 @@ class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
 
 	def get_config(self):
 		config = super().get_config().copy()
-		config.update({'kernel': self.kernel})
+		config.update({'global_weighted_average_pooling/kernel:0': self.kernel})
 		return config
     
 	def call(self, input):
