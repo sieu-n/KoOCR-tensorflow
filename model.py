@@ -97,9 +97,9 @@ class KoOCR():
         elif opt=='adam':
             optimizer=tf.keras.optimizers.Adam(lr)
         elif opt=='adabound':
-            optimizer=AdaBound(lr=lr,final_lr=lr*100,amsbound=False)
+            optimizer=AdaBound(name='adabound',lr=lr,final_lr=lr*100,amsbound=False)
         elif opt=='amsbound':
-            optimizer=AdaBound(lr=lr,final_lr=lr*100,amsbound=True)
+            optimizer=AdaBound(name='amsbound',lr=lr,final_lr=lr*100,amsbound=True)
             
         if self.split_components:
             losses = {

@@ -27,7 +27,7 @@ parser.add_argument("--direct_map", type=str2bool,default=True)
 parser.add_argument("--batch_size", type=int,default=32)
 parser.add_argument("--epochs", type=int,default=50)
 parser.add_argument("--weights", type=str,default='')
-parser.add_argument("--learning_rate", type=float,default=0.000001)
+parser.add_argument("--learning_rate", type=float,default=0.001)
 
 if __name__=='__main__':
     args = parser.parse_args()
