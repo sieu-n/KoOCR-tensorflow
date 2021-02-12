@@ -114,7 +114,3 @@ def MobilenetV3(settings):
     else:
         x=build_FC_regular(feature)
         return tf.keras.models.Model(inputs=input_image,outputs=x)
-
-
-
-model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}

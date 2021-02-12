@@ -12,7 +12,7 @@ import datetime
 
 from utils.adabound import AdaBound
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
-from utils.Melnyk import melnyk_net
+from utils.MelnykNet import melnyk_net
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='custom',image_size=256,direct_map=True):
         self.split_components=split_components
@@ -31,7 +31,7 @@ class KoOCR():
             return self.predict_split(image,n)
         else:
             return self.predict_complete(image,n)
-            
+
     def predict_complete(self,image,n=1):
         #Predict the top-n classes of the image
         #Returns top n characters that maximize the probability
