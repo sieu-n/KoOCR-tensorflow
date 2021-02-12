@@ -22,7 +22,7 @@ parser.add_argument("--patch_size", type=int,default=10)
 parser.add_argument("--network", type=str,default='efficient-net',choices=['VGG16','inception-resnet','mobilenet','efficient-net','melnyk'])
 parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','GWOAP'])
 
-parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound','amsbound'])
+parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound'])
 parser.add_argument("--direct_map", type=str2bool,default=True)
 parser.add_argument("--batch_size", type=int,default=32)
 parser.add_argument("--epochs", type=int,default=50)

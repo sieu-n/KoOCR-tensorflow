@@ -10,7 +10,7 @@ from IPython.display import clear_output
 import gc
 import datetime
 
-from utils.adabound import AdaBound
+from keras_adabound import AdaBound
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
 from utils.MelnykNet import melnyk_net
 class KoOCR():
@@ -97,9 +97,7 @@ class KoOCR():
         elif opt=='adam':
             optimizer=tf.keras.optimizers.Adam(lr)
         elif opt=='adabound':
-            optimizer=AdaBound(name='adabound',lr=lr,final_lr=lr*100,amsbound=False)
-        elif opt=='amsbound':
-            optimizer=AdaBound(name='amsbound',lr=lr,final_lr=lr*100,amsbound=True)
+            optimizer=AdaBound(lr=lr,final_lr=lr*100)
             
         if self.split_components:
             losses = {
