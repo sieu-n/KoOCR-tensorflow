@@ -5,12 +5,14 @@ import dataset
 import utils.korean_manager as korean_manager
 from PIL import Image
 import random
-import utils.model_architectures as model_architectures
 import os
 from IPython.display import clear_output
 import gc
 import datetime
-from adabound import AdaBound
+
+from utils.adabound import AdaBound
+from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
+from utils.Melnyk import melnyk_net
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='custom',image_size=256,direct_map=True):
         self.split_components=split_components
@@ -20,13 +22,16 @@ class KoOCR():
         if weight_path:
             self.model = tf.keras.models.load_model('./logs/model.h5')
         else:
+            model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
-            self.model=model_architectures.model_list[network_type](settings)
+            self.model=model_list[network_type](settings)
+
     def predict(self,image,n=1):
         if self.split_components:
             return self.predict_split(image,n)
         else:
             return self.predict_complete(image,n)
+            
     def predict_complete(self,image,n=1):
         #Predict the top-n classes of the image
         #Returns top n characters that maximize the probability

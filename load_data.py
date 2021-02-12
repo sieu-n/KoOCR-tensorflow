@@ -37,7 +37,7 @@ def unzip_7z():
     os.remove(os.path.join(data_path,'data.7z'))
 
     shutil.unpack_archive(os.path.join(val_data_path,'val_data.7z'), val_data_path)
-    os.remove(os.path.join(val_data_path,'data.7z'))
+    os.remove(os.path.join(val_data_path,'val_data.7z'))
     print("Downloading complete...")
 
 def unzip_zip():
