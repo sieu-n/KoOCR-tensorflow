@@ -20,7 +20,7 @@ class KoOCR():
 
         #Build and load model
         if weight_path:
-            self.model = tf.keras.models.load_model('./logs/model.h5')
+            self.model = tf.keras.models.load_model(weight_path)
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
@@ -156,4 +156,4 @@ class KoOCR():
                 clear_output(wait=True)
                 
             #Save weights in checkpoint
-            self.model.save_weights('./logs/weights.h5')
+            self.model.save('./logs/weights.h5')
