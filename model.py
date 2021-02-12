@@ -14,7 +14,7 @@ from utils.adabound import AdaBound
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
 from utils.MelnykNet import melnyk_net
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='custom',image_size=256,direct_map=True):
+    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=True):
         self.split_components=split_components
         self.charset=korean_manager.load_charset()
 
