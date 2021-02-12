@@ -68,8 +68,9 @@ class MultiOutputGradCAM:
 		# softmax activations from the model
 		gradModel = Model(inputs=[self.model.inputs],\
 		outputs=[self.model.get_layer(self.layerName).output]+[self.model.output])
-
+		image=image.reshape(1,image.shape[0],image.shape[1],1)
 		heatmap_list=[]
+		
 		for component in range(3):
 			# record operations for automatic differentiation
 			with tf.GradientTape() as tape:
@@ -94,10 +95,11 @@ class MultiOutputGradCAM:
 			# as weights, compute the ponderation of the filters with
 			# respect to the weights
 			weights = tf.reduce_mean(guidedGrads, axis=(0, 1))
-			cam = tf.reduce_sum(tf.multiply(weights, convOutputs), axis=-1)
+			cam = tf.reduce_sum(tf.multiply(weights, convOutputs), axis=-1).numpy()
+			cam=cam.reshape(cam.shape[0],cam.shape[1],1)
 			# reshape
-			(w, h) = (image.shape[2], image.shape[1])
-			heatmap = tf.image.resize(cam, (w, h))
+			(w, h) = (image.shape[1], image.shape[2])
+			heatmap = tf.image.resize(cam, (w, h)).numpy()
 			# normalize the heatmap such that all values lie in the range
 			# [0, 1], scale the resulting values to the range [0, 255],
 			# and then convert to an unsigned 8-bit integer
