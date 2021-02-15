@@ -93,11 +93,11 @@ class KoOCR():
     def compile_model(self,lr,opt):
         #Compile model 
         if opt =='sgd':
-            optimizer=tf.keras.optimizers.SGD(lr)
+            optimizer=tf.keras.optimizers.SGD(lr,clipvalue=0.1)
         elif opt=='adam':
-            optimizer=tf.keras.optimizers.Adam(lr)
+            optimizer=tf.keras.optimizers.Adam(lr,clipvalue=0.1)
         elif opt=='adabound':
-            optimizer=AdaBound(lr=lr,final_lr=lr*100)
+            optimizer=AdaBound(lr=lr,final_lr=lr*100,clipvalue=0.1)
             
         if self.split_components:
             losses = {
