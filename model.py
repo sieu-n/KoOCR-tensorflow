@@ -14,7 +14,7 @@ from keras_adabound import AdaBound
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
 from utils.MelnykNet import melnyk_net
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=True):
+    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,attention_refinement=False):
         self.split_components=split_components
         self.charset=korean_manager.load_charset()
 
@@ -23,7 +23,7 @@ class KoOCR():
             self.model = tf.keras.models.load_model(weight_path,compile=False)
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
-            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link}
+            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'attention_refinement':attention_refinement}
             self.model=model_list[network_type](settings)
 
     def predict(self,image,n=1):

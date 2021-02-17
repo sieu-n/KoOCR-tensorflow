@@ -19,11 +19,12 @@ parser.add_argument("--data_path", type=str,default='./data')
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
-parser.add_argument("--network", type=str,default='efficient-net',choices=['VGG16','inception-resnet','mobilenet','efficient-net','melnyk'])
+parser.add_argument("--network", type=str,default='melnyk',choices=['VGG16','inception-resnet','mobilenet','efficient-net','melnyk'])
 parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','GWOAP'])
+parser.add_argument("--attention_refinement", type=str2bool,default=False)
 
 parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound'])
-parser.add_argument("--direct_map", type=str2bool,default=True)
+parser.add_argument("--direct_map", type=str2bool,default=False)
 parser.add_argument("--batch_size", type=int,default=32)
 parser.add_argument("--epochs", type=int,default=50)
 parser.add_argument("--weights", type=str,default='')
@@ -33,6 +34,6 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights,fc_link=args.fc_link,\
-        network_type=args.network,image_size=args.image_size,direct_map=args.direct_map)
+        network_type=args.network,image_size=args.image_size,direct_map=args.direct_map,attention_refinement=args.attention_refinement)
     KoOCR.train(epochs=args.epochs,lr=args.learning_rate,data_path=args.data_path,patch_size=args.patch_size,\
         batch_size=args.batch_size,optimizer=args.optimizer)
