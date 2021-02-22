@@ -15,8 +15,10 @@ import utils.predict_char as predict_char
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
 from utils.MelnykNet import melnyk_net
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4):
+    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4,\
+            iterative_refinement=False):
         self.split_components=split_components
+        self.iterative_refinement=iterative_refinement
         self.charset=korean_manager.load_charset()
 
         #Build and load model
@@ -24,7 +26,8 @@ class KoOCR():
             self.model = tf.keras.models.load_model(weight_path,compile=False)
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
-            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t}
+            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
+                'iterative_refinement':iterative_refinement}
             self.model=model_list[network_type](settings)
 
     def predict(self,image,n=1):

@@ -20,7 +20,8 @@ parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
 parser.add_argument("--network", type=str,default='melnyk',choices=['VGG16','inception-resnet','mobilenet','efficient-net','melnyk'])
-parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','GWOAP','GRU'])
+parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','GWOAP'])
+parser.add_argument("--iterative_refinement", type=str2bool,default=False)
 parser.add_argument("--refinement_t", type=int,default=4)
 
 parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound'])
@@ -33,7 +34,7 @@ parser.add_argument("--learning_rate", type=float,default=0.001)
 if __name__=='__main__':
     args = parser.parse_args()
 
-    KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights,fc_link=args.fc_link,\
+    KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights,fc_link=args.fc_link,iterative_refinement=args.iterative_refinement\
         network_type=args.network,image_size=args.image_size,direct_map=args.direct_map,refinement_t=args.refinement_t)
     KoOCR.train(epochs=args.epochs,lr=args.learning_rate,data_path=args.data_path,patch_size=args.patch_size,\
         batch_size=args.batch_size,optimizer=args.optimizer)

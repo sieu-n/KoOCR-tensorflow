@@ -5,7 +5,7 @@ import utils.CustomLayers as CustomLayers
 
 
 def build_FC_split(x,settings):
-    if settings['iterative-refinement']==True:
+    if settings['iterative_refinement']==True:
         width,height,channels=x.shape
         x=tf.keras.layers.Reshape((width*height,channels))
 
