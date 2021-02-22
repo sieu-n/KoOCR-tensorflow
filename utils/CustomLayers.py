@@ -52,6 +52,8 @@ class RNN_Decoder(tf.keras.Model):
   def call(self, x, features, hidden):
 	# hidden: previous states   features: feature map(conv output)
     # defining attention as a separate model
+	hidden = tf.cond(hidden==None, tf.zeros((x.shape[0], self.units)), hidden)
+
     context_vector, attention_weights = self.attention(features, hidden)
 
     # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
@@ -70,9 +72,6 @@ class RNN_Decoder(tf.keras.Model):
     x = self.fc2(x)
 
     return x, state, attention_weights
-
-  def reset_state(self, batch_size):
-    return tf.zeros((batch_size, self.units))
 	
 @tf.keras.utils.register_keras_serializable()
 class GlobalWeightedAveragePooling(tf.keras.layers.Layer):

@@ -10,7 +10,7 @@ from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.initializers import RandomNormal
 
 from utils.CustomLayers import GlobalWeightedAveragePooling
-from utils.model_components import build_FC_split,build_FC_regular,PreprocessingPipeline
+from utils.model_components import build_FC,PreprocessingPipeline
 
 def melnyk_net(settings):	
 	random_normal = RandomNormal(stddev=0.001)
