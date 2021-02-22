@@ -99,8 +99,7 @@ def melnyk_net(settings):
 	x = Activation('relu')(x)
 
 	if settings['split_components']:
-		CHO,JUNG,JONG=build_FC_split(x,GAP=settings['fc_link'])
-        
+		CHO,JUNG,JONG=build_FC_split(feature,settings)
 		return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
 	else:
 		x=build_FC_regular(x)

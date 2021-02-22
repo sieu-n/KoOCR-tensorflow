@@ -3,6 +3,77 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import utils.korean_manager as korean_manager
+
+class BahdanauAttention(tf.keras.Model):
+  def __init__(self, units):
+    super(BahdanauAttention, self).__init__()
+    self.W1 = tf.keras.layers.Dense(units)
+    self.W2 = tf.keras.layers.Dense(units)
+    self.V = tf.keras.layers.Dense(1)
+
+  def call(self, features, hidden):
+    # features(CNN_encoder output) shape == (batch_size, 36, embedding_dim)
+
+    # hidden shape == (batch_size, hidden_size)
+    # hidden_with_time_axis shape == (batch_size, 1, hidden_size)
+    hidden_with_time_axis = tf.expand_dims(hidden, 1)
+
+    # attention_hidden_layer shape == (batch_size, 36, units)
+    attention_hidden_layer = (tf.nn.tanh(self.W1(features) +
+                                         self.W2(hidden_with_time_axis)))
+
+    # score shape == (batch_size, 36, 1)
+    # This gives you an unnormalized score for each image feature.
+    score = self.V(attention_hidden_layer)
+
+    # attention_weights shape == (batch_size, 36, 1)
+    attention_weights = tf.nn.softmax(score, axis=1)
+
+    # context_vector shape after sum == (batch_size, hidden_size)
+    context_vector = attention_weights * features
+    context_vector = tf.reduce_sum(context_vector, axis=1)
+
+    return context_vector, attention_weights
+
+class RNN_Decoder(tf.keras.Model):
+  def __init__(self, units, class_types):
+	#units: # classes
+    super(RNN_Decoder, self).__init__()
+    self.units = units
+    self.gru = tf.keras.layers.GRU(self.units,
+                                   return_sequences=True,
+                                   return_state=True,
+                                   recurrent_initializer='glorot_uniform')
+    self.fc1 = tf.keras.layers.Dense(self.units)
+    self.fc2 = tf.keras.layers.Dense(class_types)
+
+    self.attention = BahdanauAttention(self.units)
+
+  def call(self, x, features, hidden):
+	# hidden: previous states   features: feature map(conv output)
+    # defining attention as a separate model
+    context_vector, attention_weights = self.attention(features, hidden)
+
+    # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
+    x = tf.expand_dims(context_vector, 1)
+
+    # passing the concatenated vector to the GRU
+    output, state = self.gru(x)
+
+    # shape == (batch_size, max_length, hidden_size)
+    x = self.fc1(output)
+
+    # x shape == (batch_size * max_length, hidden_size)
+    x = tf.reshape(x, (-1, x.shape[2]))
+
+    # output shape == (batch_size * max_length, class_types)
+    x = self.fc2(x)
+
+    return x, state, attention_weights
+
+  def reset_state(self, batch_size):
+    return tf.zeros((batch_size, self.units))
+	
 @tf.keras.utils.register_keras_serializable()
 class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
 	#Implementation of GlobalWeightedAveragePooling

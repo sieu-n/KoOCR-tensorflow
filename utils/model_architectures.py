@@ -19,7 +19,7 @@ def VGG16(settings):
     feature=VGG_net(preprocessed)
     
     if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature)
+        CHO,JUNG,JONG=build_FC_split(feature,settings)
         return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
         x=build_FC_regular(feature)
@@ -66,7 +66,7 @@ def EfficientCNN(settings):
     if settings['split_components']:
         #mid1_CHO,mid1_JUNG,mid1_JONG=build_FC_split(fire5,tag='mid1_')
         #mid2_CHO,mid2_JUNG,mid2_JONG=build_FC_split(fire7,tag='mid2_')
-        CHO,JUNG,JONG=build_FC_split(fire11,GAP=settings['fc_link'])
+        CHO,JUNG,JONG=build_FC_split(feature,settings)
         
         return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
@@ -88,7 +88,7 @@ def InceptionResnetV2(settings):
     feature=InceptionResnet(preprocessed)
     
     if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature)
+        CHO,JUNG,JONG=build_FC_split(feature,settings)
         return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
         x=build_FC_regular(feature)
@@ -109,7 +109,7 @@ def MobilenetV3(settings):
     feature=Mobilenet(preprocessed)
     
     if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature)
+        CHO,JUNG,JONG=build_FC_split(feature,settings)
         return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
     else:
         x=build_FC_regular(feature)

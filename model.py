@@ -11,10 +11,11 @@ import gc
 import datetime
 
 from keras_adabound import AdaBound
+import utils.predict_char as predict_char
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
 from utils.MelnykNet import melnyk_net
 class KoOCR():
-    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,attention_refinement=False):
+    def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4):
         self.split_components=split_components
         self.charset=korean_manager.load_charset()
 
@@ -23,56 +24,14 @@ class KoOCR():
             self.model = tf.keras.models.load_model(weight_path,compile=False)
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
-            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'attention_refinement':attention_refinement}
+            settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t}
             self.model=model_list[network_type](settings)
 
     def predict(self,image,n=1):
         if self.split_components:
-            return self.predict_split(image,n)
+            return predict_char.predict_split(self.model,image,n)
         else:
-            return self.predict_complete(image,n)
-
-    def predict_complete(self,image,n=1):
-        #Predict the top-n classes of the image
-        #Returns top n characters that maximize the probability
-        charset=korean_manager.load_charset()
-        if image.shape==(256,256):
-            image=image.reshape((1,256,256))
-        pred_class=self.model.predict(image)
-        pred_class=np.argsort(pred_class,axis=1)[:,-n:]
-        pred_hangeul=[]
-        for idx in range(image.shape[0]):
-            pred_hangeul.append([])
-            for char in pred_class[idx]:
-                pred_hangeul[-1].append(charset[char])
-        return pred_hangeul
-
-        
-    def predict_split(self,image,n=1):
-        #Predict the top-n classes of the image
-        #k: top classes for each component to generate
-        #Returns top n characters that maximize pred(chosung)*pred(jungsung)*pred(jongsung)
-        k=int(n**(1/3))+2
-        if image.shape==(256,256):
-            image=image.reshape((1,256,256))
-        #Predict top n classes
-        
-        cho_pred,jung_pred,jong_pred=self.model.predict(image)
-        cho_idx,jung_idx,jong_idx=np.argsort(cho_pred,axis=1)[:,-k:],np.argsort(jung_pred,axis=1)[:,-k:],np.argsort(jong_pred,axis=1)[:,-k:]
-        cho_pred,jung_pred,jong_pred=np.sort(cho_pred,axis=1)[:,-k:],np.sort(jung_pred,axis=1)[:,-k:],np.sort(jong_pred,axis=1)[:,-k:]
-        #Convert indicies to korean character
-        pred_hangeul=[]
-        for idx in range(image.shape[0]):
-            pred_hangeul.append([])
-
-            cho_prob,jung_prob,jong_prob=cho_pred[idx],jung_pred[idx].reshape(-1,1),jong_pred[idx].reshape(-1,1)
-
-            mult=((cho_prob*jung_prob).flatten()*jong_prob).flatten().argsort()[-5:][::-1]
-            for max_idx in mult:
-                pred_hangeul[-1].append(korean_manager.index_to_korean((cho_idx[idx][max_idx%k],jung_idx[idx][(max_idx%(k*k))//k]\
-                    ,jong_idx[idx][max_idx//(k*k)])))
-
-        return pred_hangeul
+            return predict_char.predict_complete(self.model,image,n)
     
     def plot_val_image(self,val_data):
         #Load validation data

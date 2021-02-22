@@ -3,18 +3,23 @@ import numpy as np
 import utils.korean_manager as korean_manager
 import utils.CustomLayers as CustomLayers
 
-def build_FC_split(x,GAP='',tag=''):
-    if GAP=='':
+
+def build_FC_split(x,settings):
+    if settings['iterative-refinement']==True:
+        width,height,channels=x.shape
+        x=tf.keras.layers.Reshape((width*height,channels))
+
+    if settings['fc_link']=='':
         x=tf.keras.layers.Flatten()(x)
-    elif GAP=='GAP':
+    elif settings['fc_link']=='GAP':
         x=tf.keras.layers.GlobalAveragePooling2D()(x)
-    elif GAP=='GWAP':
+    elif settings['fc_link']=='GWAP':
         x=CustomLayers.GlobalWeightedAveragePooling()(x)
     #x=tf.keras.layers.Dense(1024)(x)
 
-    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name=tag+'CHOSUNG')(x)
-    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name=tag+'JUNGSUNG')(x)
-    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name=tag+'JONGSUNG')(x)
+    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(x)
+    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
+    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
     return CHO,JUNG,JONG
 
 def build_FC_regular(x):
