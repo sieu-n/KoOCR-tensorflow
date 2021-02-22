@@ -31,8 +31,18 @@ def split_topn(cho_pred,jung_pred,jong_pred,n):
     return pred_hangeul
 
 def predict_ir(model,image,n=1, t=4):
+    def find_target_layer(model):
+		# attempt to find the final convolutional layer in the network
+		# by looping over the layers of the network in reverse order
+		for layer in reversed(model.layers):
+			# check to see if the layer has a 4D output
+			if len(layer.output_shape) == 4:
+				return layer.name
+		# otherwise, we could not find a 4D layer so the GradCAM
+		# algorithm cannot be applied
+		raise ValueError("Could not find 4D layer. Cannot apply GradCAM.")
     return 0
-    
+
 def predict_split(model,image,n=1):
     #Predict the top-n classes of the image
     #k: top classes for each component to generate
@@ -42,5 +52,7 @@ def predict_split(model,image,n=1):
         image=image.reshape((1,256,256))
     #Predict top n classes
     
-    cho_pred,jung_pred,jong_pred=model.predict(image)
+    prediction_list=model.predict(image)
+    prediction_dict = {name: pred for name, pred in zip(model.output_names, prediction_list)}
+    cho_pred,jung_pred,jong_pred=prediction_dict['CHOSUNG'],prediction_dict['JUNGSUNG'],prediction_dict['JONGSUNG']
     return split_topn(cho_pred,jung_pred,jong_pred)

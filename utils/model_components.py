@@ -1,14 +1,22 @@
 import tensorflow as tf
 import numpy as np
+from tensorflow.keras.models import Model
 import utils.korean_manager as korean_manager
 import utils.CustomLayers as CustomLayers
 
+def build_FC(input_image,x,settings):
+    if settings['iterative_refinement']==True:
+        preds=build_ir_split(x,settings)
+        return Model(inputs=input_image,outputs=preds)
+
+    if settings['split_components']:
+		CHO,JUNG,JONG=build_FC_split(x,settings)
+		return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+	else:
+		x=build_FC_regular(x)
+		return Model(inputs=input_image,outputs=x)
 
 def build_FC_split(x,settings):
-    if settings['iterative_refinement']==True:
-        width,height,channels=x.shape
-        x=tf.keras.layers.Reshape((width*height,channels))
-
     if settings['fc_link']=='':
         x=tf.keras.layers.Flatten()(x)
     elif settings['fc_link']=='GAP':
@@ -21,6 +29,38 @@ def build_FC_split(x,settings):
     JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
     JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
     return CHO,JUNG,JONG
+
+def build_ir_split(x,settings):
+    units=512
+    _,width,height,channels=x.shape
+    x=tf.keras.layers.Reshape((width*height,channels))(x)
+    #Define attention + GRU for each component
+    CHO_RNN=CustomLayers.RNN_Decoder(units,len(korean_manager.CHOSUNG_LIST))
+    JUNG_RNN=CustomLayers.RNN_Decoder(units,len(korean_manager.JUNGSUNG_LIST))
+    JONG_RNN=CustomLayers.RNN_Decoder(units,len(korean_manager.JONGSUNG_LIST))
+
+    #Build RNN by looping the decoder t times
+    hidden_CHO = CHO_RNN.reset_state(batch_size=x.shape[0])
+    hidden_JUNG = JUNG_RNN.reset_state(batch_size=x.shape[0])
+    hidden_JONG = JONG_RNN.reset_state(batch_size=x.shape[0])
+    CHO,JUNG,JONG=x,x,x
+    pred_list=[]
+
+    for x in range(settings['refinement_t']):
+        pred_CHO, hidden_CHO = CHO_RNN(features, hidden_CHO)
+        pred_JUNG, hidden_CHO = JUNG_RNN(features, hidden_JUNG)
+        pred_JONG, hidden_CHO = JONG_RNN(features, hidden_JONG)
+
+        if not x==settings['refinement_t']:
+            index=str(x)
+        else:
+            index=''
+        pred_CHO._name='CHOSUNG'+index
+        pred_JUNG._name='JUNGSUNG'+index
+        pred_JONG._name='JONGSUNG'+index
+        pred_list+=[pred_CHO,pred_JUNG,pred_JONG]
+
+    return pred_list
 
 def build_FC_regular(x):
     x=tf.keras.layers.Flatten()(x)

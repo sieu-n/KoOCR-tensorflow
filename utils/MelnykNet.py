@@ -98,9 +98,4 @@ def melnyk_net(settings):
 	x = BatchNormalization()(x)
 	x = Activation('relu')(x)
 
-	if settings['split_components']:
-		CHO,JUNG,JONG=build_FC_split(feature,settings)
-		return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-	else:
-		x=build_FC_regular(x)
-		return Model(inputs=input_image,outputs=x)
+	return build_FC(input_image,x,settings)

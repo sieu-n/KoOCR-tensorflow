@@ -29,7 +29,11 @@ class KoOCR():
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
                 'iterative_refinement':iterative_refinement}
             self.model=model_list[network_type](settings)
-
+        
+        if iterative_refinement:
+            self.decoders=self.find_decoders()
+    def find_decoders(self):
+         return 0
     def predict(self,image,n=1):
         if self.split_components:
             return predict_char.predict_split(self.model,image,n)

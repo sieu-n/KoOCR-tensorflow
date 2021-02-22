@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import utils.korean_manager as korean_manager
 import utils.CustomLayers as CustomLayers
-from utils.model_components import build_FC_split,build_FC_regular,PreprocessingPipeline
+from utils.model_components import build_FC,PreprocessingPipeline
         
 def VGG16(settings):
     if settings['direct_map']:
@@ -18,12 +18,7 @@ def VGG16(settings):
     
     feature=VGG_net(preprocessed)
     
-    if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature,settings)
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(feature)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
+    return build_FC(input_image,x,settings)
 
 def EfficientCNN(settings):
     def fire_block(x,channels,stride=1):
@@ -62,16 +57,7 @@ def EfficientCNN(settings):
     fire10=fire_block(fire9,512)
     fire11=fire_block(fire10,512)
 
-    
-    if settings['split_components']:
-        #mid1_CHO,mid1_JUNG,mid1_JONG=build_FC_split(fire5,tag='mid1_')
-        #mid2_CHO,mid2_JUNG,mid2_JONG=build_FC_split(fire7,tag='mid2_')
-        CHO,JUNG,JONG=build_FC_split(feature,settings)
-        
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(fire11)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
+    return build_FC(fire11,settings)
     
 def InceptionResnetV2(settings):
     if settings['direct_map']:
@@ -87,12 +73,7 @@ def InceptionResnetV2(settings):
 
     feature=InceptionResnet(preprocessed)
     
-    if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature,settings)
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(feature)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
+    return build_FC(input_image,x,settings)
 
 def MobilenetV3(settings):
     if settings['direct_map']:
@@ -108,9 +89,4 @@ def MobilenetV3(settings):
     
     feature=Mobilenet(preprocessed)
     
-    if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(feature,settings)
-        return tf.keras.models.Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-    else:
-        x=build_FC_regular(feature)
-        return tf.keras.models.Model(inputs=input_image,outputs=x)
+    return build_FC(input_image,x,settings)
