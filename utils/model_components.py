@@ -6,7 +6,7 @@ import utils.CustomLayers as CustomLayers
 
 def build_FC(input_image,x,settings):
     if settings['iterative_refinement']==True:
-        preds=build_ir_split(x,settings)
+        preds=build_ir_split(input_image,x,settings)
         return Model(inputs=input_image,outputs=preds)
 
     if settings['split_components']:
@@ -30,7 +30,7 @@ def build_FC_split(x,settings):
     JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
     return CHO,JUNG,JONG
 
-def build_ir_split(x,settings):
+def build_ir_split(input_image,x,settings):
     units=512
     _,width,height,channels=x.shape
     x=tf.keras.layers.Reshape((width*height,channels))(x)
@@ -40,19 +40,17 @@ def build_ir_split(x,settings):
     JONG_RNN=CustomLayers.RNN_Decoder(units,len(korean_manager.JONGSUNG_LIST))
 
     #Build RNN by looping the decoder t times
-    hidden_CHO = CHO_RNN.reset_state(batch_size=x.shape[0])
-    hidden_JUNG = JUNG_RNN.reset_state(batch_size=x.shape[0])
-    hidden_JONG = JONG_RNN.reset_state(batch_size=x.shape[0])
-    CHO,JUNG,JONG=x,x,x
+    zero_list=tf.tile(tf.zeros_like(input_image)[:,0:1,1],tf.constant([1,512]))
+    hidden_CHO, hidden_JUNG, hidden_JONG = zero_list,zero_list,zero_list
     pred_list=[]
 
-    for x in range(settings['refinement_t']):
-        pred_CHO, hidden_CHO = CHO_RNN(features, hidden_CHO)
-        pred_JUNG, hidden_CHO = JUNG_RNN(features, hidden_JUNG)
-        pred_JONG, hidden_CHO = JONG_RNN(features, hidden_JONG)
+    for timestep in range(settings['refinement_t']):
+        pred_CHO, hidden_CHO,_ = CHO_RNN(x, hidden_CHO)
+        pred_JUNG, hidden_CHO,_ = JUNG_RNN(x, hidden_JUNG)
+        pred_JONG, hidden_CHO,_ = JONG_RNN(x, hidden_JONG)
 
-        if not x==settings['refinement_t']:
-            index=str(x)
+        if not timestep==settings['refinement_t']:
+            index=str(timestep)
         else:
             index=''
         pred_CHO._name='CHOSUNG'+index
