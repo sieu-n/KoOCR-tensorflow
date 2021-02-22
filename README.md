@@ -24,7 +24,7 @@ Open-source Korean OCR engine based on Tensorflow, deep-learning.
 - [ ] Adaptive Drop Weight, GSLRE: Building Fast and Compact Convolutional Neural Networks for Offline Handwritten Chinese Character Recognition
 - [ ] Adversarial Feature Learning: Robust offline handwritten character recognition through exploring writer-independent features under the guidance of printed data
 - [ ] DenseRAN style model: DenseRAN for Offline Handwritten Chinese Character Recognition
-- [ ] Iterative Refinemet: Improving Offline Handwritten Chinese Character Recognition by Iterative Refinement
+- [x] Iterative Refinemet: Improving Offline Handwritten Chinese Character Recognition by Iterative Refinement
 
 위 논문들에서 제시하는 method를 구현하고 한글 인식에 대한 성능 개선의 정도를 평가하는 논문을 작성할 계획이다. 
 
