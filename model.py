@@ -64,7 +64,7 @@ class KoOCR():
             optimizer=tf.keras.optimizers.Adam(lr,clipvalue=0.1)
         elif opt=='adabound':
             optimizer=AdaBound(lr=lr,final_lr=lr*100,clipvalue=0.1)
-            
+        
         if self.split_components:
             losses = {
                 "CHOSUNG": "categorical_crossentropy",

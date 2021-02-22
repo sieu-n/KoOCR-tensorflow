@@ -32,15 +32,15 @@ def split_topn(cho_pred,jung_pred,jong_pred,n):
 
 def predict_ir(model,image,n=1, t=4):
     def find_target_layer(model):
-		# attempt to find the final convolutional layer in the network
-		# by looping over the layers of the network in reverse order
-		for layer in reversed(model.layers):
-			# check to see if the layer has a 4D output
-			if len(layer.output_shape) == 4:
-				return layer.name
-		# otherwise, we could not find a 4D layer so the GradCAM
-		# algorithm cannot be applied
-		raise ValueError("Could not find 4D layer. Cannot apply GradCAM.")
+        # attempt to find the final convolutional layer in the network
+        # by looping over the layers of the network in reverse order
+        for layer in reversed(model.layers):
+            # check to see if the layer has a 4D output
+            if len(layer.output_shape) == 4:
+                return layer.name
+        # otherwise, we could not find a 4D layer so the GradCAM
+        # algorithm cannot be applied
+        raise ValueError("Could not find 4D layer. Cannot apply GradCAM.")
     return 0
 
 def predict_split(model,image,n=1):

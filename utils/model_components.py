@@ -10,11 +10,11 @@ def build_FC(input_image,x,settings):
         return Model(inputs=input_image,outputs=preds)
 
     if settings['split_components']:
-		CHO,JUNG,JONG=build_FC_split(x,settings)
-		return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
-	else:
-		x=build_FC_regular(x)
-		return Model(inputs=input_image,outputs=x)
+        CHO,JUNG,JONG=build_FC_split(x,settings)
+        return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+    else:
+        x=build_FC_regular(x)
+        return Model(inputs=input_image,outputs=x)
 
 def build_FC_split(x,settings):
     if settings['fc_link']=='':
