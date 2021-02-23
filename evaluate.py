@@ -27,6 +27,7 @@ def str2bool(v):
 #Define arguments
 parser=argparse.ArgumentParser(description='Download dataset')
 parser.add_argument("--data_path", type=str,default='./val_data')
+parser.add_argument("--train_data_path", type=str,default='./data')
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
@@ -79,7 +80,7 @@ def plot_augmentation():
     for key_text_idx in key_texts:
         #Read data from randomly selected batch
         key_text=key_texts[key_text_idx]
-        file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
+        file_list=fnmatch.filter(os.listdir(args.data_path), f'{train_data_path}*.pickle')
         np.random.shuffle(file_list)
         with open(os.path.join(args.data_path,file_list[0]),'rb') as handle:
             data=pickle.load(handle)
