@@ -53,9 +53,10 @@ def build_ir_split(input_image,x,settings):
             index=str(timestep)
         else:
             index=''
-        pred_CHO._name='CHOSUNG'+index
-        pred_JUNG._name='JUNGSUNG'+index
-        pred_JONG._name='JONGSUNG'+index
+        #Rename layers by mapping tensors into layers
+        pred_CHO = tf.keras.layers.Lambda(lambda val:val,name='CHOSUNG'+index)(pred_CHO)
+        pred_JUNG = tf.keras.layers.Lambda(lambda val:val,name='JUNGSUNG'+index)(pred_JUNG)
+        pred_JONG = tf.keras.layers.Lambda(lambda val:val,name='JONGSUNG'+index)(pred_JONG)
         pred_list+=[pred_CHO,pred_JUNG,pred_JONG]
 
     return pred_list
