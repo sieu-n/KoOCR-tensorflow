@@ -14,11 +14,12 @@ def predict_complete(model,image,n=1):
         return pred_hangeul
 
 def split_topn(cho_pred,jung_pred,jong_pred,n):
+    k=int(n**(1/3))+2
     cho_idx,jung_idx,jong_idx=np.argsort(cho_pred,axis=1)[:,-k:],np.argsort(jung_pred,axis=1)[:,-k:],np.argsort(jong_pred,axis=1)[:,-k:]
     cho_pred,jung_pred,jong_pred=np.sort(cho_pred,axis=1)[:,-k:],np.sort(jung_pred,axis=1)[:,-k:],np.sort(jong_pred,axis=1)[:,-k:]
     #Convert indicies to korean character
     pred_hangeul=[]
-    for idx in range(image.shape[0]):
+    for idx in range(cho_pred.shape[0]):
         pred_hangeul.append([])
 
         cho_prob,jung_prob,jong_prob=cho_pred[idx],jung_pred[idx].reshape(-1,1),jong_pred[idx].reshape(-1,1)
@@ -47,12 +48,13 @@ def predict_split(model,image,n=1):
     #Predict the top-n classes of the image
     #k: top classes for each component to generate
     #Returns top n characters that maximize pred(chosung)*pred(jungsung)*pred(jongsung)
-    k=int(n**(1/3))+2
+    
     if image.shape==(256,256):
         image=image.reshape((1,256,256))
     #Predict top n classes
     
     prediction_list=model.predict(image)
     prediction_dict = {name: pred for name, pred in zip(model.output_names, prediction_list)}
-    cho_pred,jung_pred,jong_pred=prediction_dict['CHOSUNG'],prediction_dict['JUNGSUNG'],prediction_dict['JONGSUNG']
-    return split_topn(cho_pred,jung_pred,jong_pred)
+    #cho_pred,jung_pred,jong_pred=prediction_dict['CHOSUNG'],prediction_dict['JUNGSUNG'],prediction_dict['JONGSUNG']
+    cho_pred,jung_pred,jong_pred=prediction_list[0],prediction_list[1],prediction[2]
+    return split_topn(cho_pred,jung_pred,jong_pred,n)
