@@ -49,7 +49,7 @@ def build_ir_split(input_image,x,settings):
         pred_JUNG, hidden_CHO,_ = JUNG_RNN(x, hidden_JUNG)
         pred_JONG, hidden_CHO,_ = JONG_RNN(x, hidden_JONG)
 
-        if not timestep==settings['refinement_t']:
+        if not timestep==settings['refinement_t']-1:
             index=str(timestep)
         else:
             index=''
@@ -77,6 +77,11 @@ def PreprocessingPipeline(direct_map):
         preprocessing.add(DirectMapGeneration())
     return preprocessing
 
+def DataAugmentation():
+    resize_and_rescale = tf.keras.Sequential([
+        tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
+        tf.keras.layers.experimental.preprocessing.RandomZoom
+    ])
 def DirectMapGeneration():
     #Generate sobel filter for 8 direction maps
     sobel_filters=[

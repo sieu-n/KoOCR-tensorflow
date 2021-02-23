@@ -71,27 +71,19 @@ class RNN_Decoder(tf.keras.Model):
 		x = self.fc2(x)
 
 		return x, state, attention_weights
-
-
-
-@tf.keras.utils.register_keras_serializable()
-class GlobalWeightedAveragePooling(tf.keras.layers.Layer):
+		
+class GlobalWeightedAveragePooling(tf.keras.Model):
 	#Implementation of GlobalWeightedAveragePooling
 	def __init__(self,kernel_initializer=tf.keras.initializers.RandomNormal(stddev=0.01),**kwargs):
 		#self.num_outputs = num_outputs
-		super(GlobalWeightedAveragePooling, self).__init__()
-		self.kernel_initializer =kernel_initializer
 		super(GlobalWeightedAveragePooling, self).__init__(**kwargs)
+		self.kernel_initializer =kernel_initializer
+		
 
 	def build(self, input_shape):
 		#input_shape=(w,h,c)
 		self.kernel = self.add_weight("kernel",shape=input_shape[1:],initializer=self.kernel_initializer)
-
-	def get_config(self):
-		config = super().get_config().copy()
-		config.update({'kernel': self.kernel})
-		return config
-    
+        
 	def call(self, input):
 		com=tf.math.multiply(input, self.kernel)
 		return tf.math.reduce_sum(com,axis=[1,2])
