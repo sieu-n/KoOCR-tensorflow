@@ -10,6 +10,7 @@ import utils.korean_manager as korean_manager
 import progressbar
 import _pickle as pickle    #cPickle
 from utils.CustomLayers import MultiOutputGradCAM
+from utils.model_components import PreprocessingPipeline
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 import pandas as pd
@@ -24,15 +25,17 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 #Define arguments
-parser = argparse.ArgumentParser(description='Download dataset')
+parser=argparse.ArgumentParser(description='Download dataset')
 parser.add_argument("--data_path", type=str,default='./val_data')
 parser.add_argument("--image_size", type=int,default=256)
 parser.add_argument("--split_components", type=str2bool,default=True)
 parser.add_argument("--patch_size", type=int,default=10)
 
-parser.add_argument("--accuracy", type=str2bool,default=True)
-parser.add_argument("--confusion_matrix", type=str2bool,default=True)
-parser.add_argument("--class_activation", type=str2bool,default=True)
+parser.add_argument("--show_augmentation", type=str2bool,default=False)
+parser.add_argument("--accuracy", type=str2bool,default=False)
+parser.add_argument("--confusion_matrix", type=str2bool,default=False)
+parser.add_argument("--class_activation", type=str2bool,default=False)
+
 parser.add_argument("--class_activation_n", type=int,default=10)
 
 parser.add_argument("--weights", type=str,default='')
@@ -62,6 +65,35 @@ def generate_CAM(model,key_text):
             plt.imshow(data['image'][data_idx],cmap='gray')
             plt.axis('off')
     plt.savefig('./logs/CAM_Sample.png')
+    plt.clf()
+
+def plot_augmentation():
+    images_per_type=3
+    augment_times=5
+    key_texts=['clova','handwritten','printed']
+    width,height=images_per_type*3,augment_times+1
+    #Define PreprocessingPipeline with data augmentation.
+    aug_model=PreprocessingPipeline(False,True)
+
+    fig = plt.figure(figsize=(width,height))
+    for key_text_idx in key_texts:
+        #Read data from randomly selected batch
+        key_text=key_texts[key_text_idx]
+        file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
+        np.random.shuffle(file_list)
+        with open(os.path.join(args.data_path,file_list[0]),'rb') as handle:
+            data=pickle.load(handle)
+        #Plot first 3 images and augment_times augmented versions. 
+        for idx in range(images_per_type):
+            plt.subplot(key_text_idx*3+idx+1,width,height)
+            plt.imshow(data['images'][idx])
+            plt.axis('off')
+            for _ in range(1,augment_times+1):
+                plt.subplot(key_text_idx*3+idx+1 + width*k,width,height)
+                new_image=aug_model(data['image'][idx:idx+1])
+                plt.imshow(new_image[0])
+                plt.axis('off')
+    plt.savefig('./logs/Augmentation_Sample.png')
     plt.clf()
 
 def generate_confusion_matrix(model,key_text):
@@ -144,3 +176,5 @@ if __name__=='__main__':
         print('Handwritten CAM image generated.')
         generate_CAM(KoOCR,'printed')
         print('Printed CAM image generated.')
+
+    if args.show_augmentation:

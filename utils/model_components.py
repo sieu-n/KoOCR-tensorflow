@@ -67,21 +67,26 @@ def build_FC_regular(x):
     x=tf.keras.layers.Dense(len(korean_manager.load_charset()),activation='softmax',name='output')(x)
     return x
 
-def PreprocessingPipeline(direct_map):
+def PreprocessingPipeline(direct_map,data_augmentation):
     preprocessing=tf.keras.models.Sequential()
 
     #[0, 255] to [0, 1] with black white reversed
     preprocessing.add(tf.keras.layers.experimental.preprocessing.Rescaling(scale=-1/255,offset=1))
+    #Whether to perform data augmentation
+    if data_augmentation==True:
+        preprocessing.add(DataAugmentation())
     #DirectMap normalization
     if direct_map==True:
         preprocessing.add(DirectMapGeneration())
     return preprocessing
 
 def DataAugmentation():
-    resize_and_rescale = tf.keras.Sequential([
-        tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
-        tf.keras.layers.experimental.preprocessing.RandomZoom
+    augment = tf.keras.Sequential([
+        tf.keras.layers.experimental.preprocessing.RandomRotation(0.15),
+        tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1,0.1)
     ])
+    return augment
+
 def DirectMapGeneration():
     #Generate sobel filter for 8 direction maps
     sobel_filters=[

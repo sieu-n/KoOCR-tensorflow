@@ -16,7 +16,7 @@ from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,Effici
 from utils.MelnykNet import melnyk_net
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4,\
-            iterative_refinement=False):
+            iterative_refinement=False,data_augmentation=False):
         self.split_components=split_components
         self.iterative_refinement=iterative_refinement
         self.refinement_t=refinement_t
@@ -28,7 +28,7 @@ class KoOCR():
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
-                'iterative_refinement':iterative_refinement}
+                'iterative_refinement':iterative_refinement,'data_augmentation':data_augmentation}
             self.model=model_list[network_type](settings)
         
         if iterative_refinement:
@@ -103,7 +103,7 @@ class KoOCR():
         val_x,val_y=train_dataset.get_val()
         if self.iterative_refinement:
             val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
-            
+
         self.compile_model(lr,optimizer)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
