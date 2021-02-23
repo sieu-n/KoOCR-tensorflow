@@ -19,6 +19,7 @@ class KoOCR():
             iterative_refinement=False):
         self.split_components=split_components
         self.iterative_refinement=iterative_refinement
+        self.refinement_t=refinement_t
         self.charset=korean_manager.load_charset()
 
         #Build and load model
@@ -34,6 +35,7 @@ class KoOCR():
             self.decoders=self.find_decoders()
     def find_decoders(self):
          return 0
+         
     def predict(self,image,n=1):
         if self.split_components:
             return predict_char.predict_split(self.model,image,n)
@@ -55,7 +57,7 @@ class KoOCR():
             plt.axis('off')
         plt.savefig('./logs/image.png')
         print(pred_y)
-            
+  
     def compile_model(self,lr,opt):
         #Compile model 
         if opt =='sgd':
@@ -65,7 +67,9 @@ class KoOCR():
         elif opt=='adabound':
             optimizer=AdaBound(lr=lr,final_lr=lr*100,clipvalue=0.1)
         
-        if self.split_components:
+        if self.iterative_refinement:
+            losses="categorical_crossentropy"
+        elif self.split_components:
             losses = {
                 "CHOSUNG": "categorical_crossentropy",
                 "JUNGSUNG": "categorical_crossentropy",
@@ -97,7 +101,9 @@ class KoOCR():
 
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
         val_x,val_y=train_dataset.get_val()
-
+        if self.iterative_refinement:
+            val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
+            
         self.compile_model(lr,optimizer)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
@@ -109,6 +115,8 @@ class KoOCR():
             while epoch_end==False:
                 #Train on loaded dataset batch
                 train_x,train_y,epoch_end=train_dataset.get()
+                if self.iterative_refinement:
+                    train_y=[train_y['CHOSUNG'],train_y['JUNGSUNG'],train_y['JONGSUNG']]*self.refinement_t
                 history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
 
                 #Log losses to Tensorboard
