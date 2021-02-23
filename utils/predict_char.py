@@ -1,3 +1,6 @@
+import numpy as np
+import utils.korean_manager as korean_manager
+
 def predict_complete(model,image,n=1):
         #Predict the top-n classes of the image
         #Returns top n characters that maximize the probability
@@ -56,5 +59,5 @@ def predict_split(model,image,n=1):
     prediction_list=model.predict(image)
     prediction_dict = {name: pred for name, pred in zip(model.output_names, prediction_list)}
     #cho_pred,jung_pred,jong_pred=prediction_dict['CHOSUNG'],prediction_dict['JUNGSUNG'],prediction_dict['JONGSUNG']
-    cho_pred,jung_pred,jong_pred=prediction_list[0],prediction_list[1],prediction[2]
+    cho_pred,jung_pred,jong_pred=prediction_list[0],prediction_list[1],prediction_list[2]
     return split_topn(cho_pred,jung_pred,jong_pred,n)
