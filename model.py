@@ -9,6 +9,7 @@ import os
 from IPython.display import clear_output
 import gc
 import datetime
+import shutil
 
 from keras_adabound import AdaBound
 import utils.predict_char as predict_char
@@ -79,7 +80,7 @@ class KoOCR():
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
 
-    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound'):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -129,3 +130,5 @@ class KoOCR():
                 
             #Save weights in checkpoint
             self.model.save('./logs/weights', save_format='tf')
+            if zip_weights:
+                shutil.make_archive('weights_epoch_'+str(epoch), 'zip', './logs/weights')
