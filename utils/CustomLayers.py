@@ -11,7 +11,7 @@ class BahdanauAttention(tf.keras.Model):
     self.W2 = tf.keras.layers.Dense(units)
     self.V = tf.keras.layers.Dense(1)
 
-  def call(self, features, hidden):
+  def __call__(self, features, hidden):
     # features(CNN_encoder output) shape == (batch_size, 36, embedding_dim)
 
     # hidden shape == (batch_size, hidden_size)
@@ -49,7 +49,7 @@ class RNN_Decoder(tf.keras.Model):
 
 		self.attention = BahdanauAttention(self.units)
 
-	def call(self, features, hidden):
+	def __call__(self, features, hidden):
 		# hidden: previous states   features: feature map(conv output)
 		# defining attention as a separate model
 
