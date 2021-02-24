@@ -28,6 +28,21 @@ Open-source Korean OCR engine based on Tensorflow, deep-learning.
 
 위 논문들에서 제시하는 method를 구현하고 한글 인식에 대한 성능 개선의 정도를 평가하는 논문을 작성할 계획이다. 
 
+## 모델 성능
+
+pretrained weights는 `pretrained/해당모델` 폴더 아래 저장되어 있다. 각 모델에 대한 추가적인 학습결과는 `pretrained/해당모델_evaluation`에 저장되어 있다. Class별 confusion matrix, Grad-CAM 결과 등이 저장되어 있다. 아래 표는 각 모델과 학습 방법의 비교 결과이다. 
+
+model type              | 인쇄체 정확도 | 손글씨 정확도 | 추론 시간(ms/image) | 모델 크기(mb)
+----------------------- | ------------ | ------------- | ------------------- | --------------
+plain_melnyk_complete   |99.94%        |97.94%         |                     |57.1
+
+### plain_melnyk_complete
+High-performance network architecture(melnyk network) 의 baseline 모델. `0.001`의 학습률로 1 에포크, `0.00003`의 학습률로 2 에포크 학습한 결과이다. [Adabound optimizer](https://arxiv.org/abs/1902.09843)를 사용하였다. `fc_link`는 합성곱 신경망의 output feature map을 fully connected layer로 연결하는 방법을 의미하는데, 본 논문에서 제시한 GAP(Gradient Average Pooling)을 개선한 GWAP를 사용하였다. 
+```
+!python train.py --learning_rate=0.00003 --optimizer=adabound --image_size=96 --weights=./logs/weights/ --fc_link=GWAP --batch_size=128 --epochs=2 --patch_size=20 
+```
+
+
 ## 프로젝트 사용
 
 ### load_data.py
