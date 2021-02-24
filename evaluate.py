@@ -14,6 +14,7 @@ from utils.model_components import PreprocessingPipeline
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 import pandas as pd
+import matplotlib.font_manager as font_manager
 #bool type for arguments
 def str2bool(v):
     if isinstance(v, bool):
@@ -100,8 +101,12 @@ def generate_confusion_matrix(model,key_text):
     #Only call when split_components is True.
     if not args.split_components: 
         return
-    sn.set(font='Noto Sans CJK JP') 
-    
+    try:
+        path = './files/batang.ttf'
+        prop = font_manager.FontProperties(fname=path)
+    except:
+        print('No font in location, using default font.')
+        prop=None
     types=['CHOSUNG','JUNGSUNG','JONGSUNG']
     
     confusion_list={'CHOSUNG':0,'JUNGSUNG':0,'JONGSUNG':0}
@@ -131,7 +136,7 @@ def generate_confusion_matrix(model,key_text):
         df_cm = pd.DataFrame(confusion_list[t], index=index_list[t], columns=index_list[t])
 
         sn.set(rc={'figure.figsize':(20,18)})
-        ax = sn.heatmap(df_cm, cmap='Oranges', annot=True)
+        ax = sn.heatmap(df_cm, cmap='Oranges', annot=True, fontproperties=prop)
         fig = ax.get_figure()
         fig.savefig(os.path.join('./logs','confusion_matrix_'+key_text+'_'+t+".png"))
         plt.clf()
