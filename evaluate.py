@@ -179,3 +179,4 @@ if __name__=='__main__':
         print('Printed CAM image generated.')
 
     if args.show_augmentation:
+        plot_augmentation()
