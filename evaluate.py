@@ -77,7 +77,7 @@ def plot_augmentation():
     aug_model=PreprocessingPipeline(False,True)
 
     fig = plt.figure(figsize=(width,height))
-    for key_text_idx in key_texts:
+    for key_text_idx in range(3):
         #Read data from randomly selected batch
         key_text=key_texts[key_text_idx]
         file_list=fnmatch.filter(os.listdir(args.data_path), f'{train_data_path}*.pickle')

@@ -18,7 +18,7 @@ def melnyk_net(settings):
 
 	input_image=Input(shape=(settings['input_shape'],settings['input_shape']))
 	preprocessed=Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-	preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+	preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
 
 	x = Conv2D(64, (3, 3), padding='same', strides=(1, 1), kernel_initializer='he_normal', use_bias=False, 
 		kernel_regularizer=l2(reg), bias_regularizer=l2(reg))(preprocessed)
