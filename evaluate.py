@@ -133,7 +133,7 @@ def generate_confusion_matrix(model,key_text):
         sn.set(rc={'figure.figsize':(20,18)})
         ax = sn.heatmap(df_cm, cmap='Oranges', annot=True)
         fig = ax.get_figure()
-        fig.savefig(os.path.join('./logs',key_text+'_'+t+".png"))
+        fig.savefig(os.path.join('./logs','confusion_matrix_'+key_text+'_'+t+".png"))
         plt.clf()
         
 def evaluate(model,key_text):
