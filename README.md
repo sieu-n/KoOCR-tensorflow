@@ -28,6 +28,18 @@ Open-source Korean OCR engine based on Tensorflow, deep-learning.
 
 위 논문들에서 제시하는 method를 구현하고 한글 인식에 대한 성능 개선의 정도를 평가하는 논문을 작성할 계획이다. 
 
+## 모델 성능
+
+pretrained weights는 `pretrained/해당모델` 폴더 아래 저장되어 있다. 각 모델에 대한 추가적인 학습결과는 `pretrained/해당모델_evaluation`에 저장되어 있다. Class별 confusion matrix, Grad-CAM 결과 등이 저장되어 있다. 
+
+model type              | 인쇄체 정확도 | 손글씨 정확도 
+----------------------- | ------------ | ----------- 
+plain_melnyk_complete   |99.94%        |97.94%
+
+##### plain_melnyk_complete
+High-performance network architecture(melnyk network) 의 baseline 모델. 
+
+
 ## 프로젝트 사용
 
 ### load_data.py
