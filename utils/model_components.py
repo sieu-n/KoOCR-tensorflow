@@ -82,8 +82,10 @@ def PreprocessingPipeline(direct_map,data_augmentation):
 
 def DataAugmentation():
     augment = tf.keras.Sequential([
-        tf.keras.layers.experimental.preprocessing.RandomRotation(0.15),
-        tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1,0.1)
+        tf.keras.layers.experimental.preprocessing.RandomZoom( height_factor=(-0.2, 0.1),width_factor=(-0.2, 0.1),fill_mode='constant'),
+        tf.keras.layers.experimental.preprocessing.RandomRotation(0.1,fill_mode='constant'),
+        tf.keras.layers.experimental.preprocessing.RandomTranslation(0.1,0.1,fill_mode='constant')
+        
     ])
     return augment
 
