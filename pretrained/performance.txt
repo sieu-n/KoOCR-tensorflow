@@ -1,3 +1,0 @@
-plain_melnyk_complete
-- Melnyk network trained for 3 epochs
-- Printed: 99.4%	Handwritten: 97.94
