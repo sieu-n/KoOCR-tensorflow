@@ -24,7 +24,7 @@ parser.add_argument("--network", type=str,default='melnyk',choices=['VGG16','inc
 parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','GWOAP'])
 parser.add_argument("--iterative_refinement", type=str2bool,default=False)
 parser.add_argument("--refinement_t", type=int,default=4)
-parser.add_argument("--data_augmentation", type=str2bool,default=True)
+parser.add_argument("--data_augmentation", type=str2bool,default=False)
 
 parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound'])
 parser.add_argument("--direct_map", type=str2bool,default=False)
