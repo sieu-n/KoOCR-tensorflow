@@ -53,19 +53,17 @@ def generate_CAM(model,key_text):
     fig = plt.figure(figsize=(args.class_activation_n*2,8))
     for idx,data_idx in enumerate(indicies):
         #Get Class Activation Map
-        cam=MultiOutputGradCAM(KoOCR,data['label'][data_idx])
+        cam=MultiOutputGradCAM(model.model,data['label'][data_idx])
         heatmap_list=cam.compute_heatmap(data['image'][data_idx])
         heatmap_list.append(None)
 
         for comp in range(4):
             plt.subplot(4,args.class_activation_n,idx+1+args.class_activation_n*comp)
-
-            if heatmap_list[comp]:
-                plt.imshow(heatmap_list[comp])
-                
             plt.imshow(data['image'][data_idx],cmap='gray')
+            if comp!=3:
+                plt.imshow(heatmap_list[comp],alpha=0.5,cmap='jet')
             plt.axis('off')
-    plt.savefig('./logs/CAM_Sample.png')
+    plt.savefig(f'./logs/CAM_{key_text}.png')
     plt.clf()
 
 def plot_augmentation():
@@ -80,18 +78,18 @@ def plot_augmentation():
     for key_text_idx in range(3):
         #Read data from randomly selected batch
         key_text=key_texts[key_text_idx]
-        file_list=fnmatch.filter(os.listdir(args.data_path), f'{train_data_path}*.pickle')
+        file_list=fnmatch.filter(os.listdir(args.train_data_path), f'{key_text}*.pickle')
         np.random.shuffle(file_list)
-        with open(os.path.join(args.data_path,file_list[0]),'rb') as handle:
+        with open(os.path.join(args.train_data_path,file_list[0]),'rb') as handle:
             data=pickle.load(handle)
         #Plot first 3 images and augment_times augmented versions. 
         for idx in range(images_per_type):
             plt.subplot(key_text_idx*3+idx+1,width,height)
-            plt.imshow(data['images'][idx])
+            plt.imshow(data['image'][idx])
             plt.axis('off')
-            for _ in range(1,augment_times+1):
+            for k in range(1,augment_times+1):
                 plt.subplot(key_text_idx*3+idx+1 + width*k,width,height)
-                new_image=aug_model(data['image'][idx:idx+1])
+                new_image=aug_model(data['image'][idx].reshape(1,96,96,1))
                 plt.imshow(new_image[0])
                 plt.axis('off')
     plt.savefig('./logs/Augmentation_Sample.png')
