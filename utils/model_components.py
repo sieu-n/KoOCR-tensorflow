@@ -10,13 +10,13 @@ def build_FC(input_image,x,settings):
         return Model(inputs=input_image,outputs=preds)
 
     if settings['split_components']:
-        CHO,JUNG,JONG=build_FC_split(x,settings)
-        return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
+        model=build_FC_split(input_image,x,settings)
+        return model
     else:
         x=build_FC_regular(x)
         return Model(inputs=input_image,outputs=x)
 
-def build_FC_split(x,settings):
+def build_FC_split(input_image,x,settings):
     if settings['fc_link']=='':
         x=tf.keras.layers.Flatten()(x)
     elif settings['fc_link']=='GAP':
@@ -28,7 +28,17 @@ def build_FC_split(x,settings):
     CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(x)
     JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
     JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
-    return CHO,JUNG,JONG
+    #Define discriminator
+    if settings['adversarial_learning']:
+        disc=CustomLayers.GlobalWeightedAveragePooling()(x)
+        disc=tf.keras.layers.Dense(512)(disc)
+        disc=tf.keras.layers.BatchNormalization()(disc)
+        disc=tf.keras.layers.LeakyReLU()(disc)
+        disc=tf.keras.layers.Flatten(1,activation='sigmoid',name='DISC')(disc)
+
+        return Model(inputs=input_image,outputs=[CHO,JUNG,JONG,disc])
+
+    return Model(inputs=input_image,outputs=[CHO,JUNG,JONG])
 
 def build_ir_split(input_image,x,settings):
     units=512

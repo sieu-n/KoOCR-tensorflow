@@ -17,19 +17,19 @@ from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,Effici
 from utils.MelnykNet import melnyk_net
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4,\
-            iterative_refinement=False,data_augmentation=False):
+            iterative_refinement=False,data_augmentation=False,adversarial_learning=False):
         self.split_components=split_components
         self.iterative_refinement=iterative_refinement
         self.refinement_t=refinement_t
         self.charset=korean_manager.load_charset()
-
+        self.adversarial_learning=adversarial_learning
         #Build and load model
         if weight_path:
             self.model = tf.keras.models.load_model(weight_path,compile=False)
         else:
             model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
-                'iterative_refinement':iterative_refinement,'data_augmentation':data_augmentation}
+                'iterative_refinement':iterative_refinement,'data_augmentation':data_augmentation,'adversarial_learning':adversarial_learning}
             self.model=model_list[network_type](settings)
         
         if iterative_refinement:
@@ -59,7 +59,7 @@ class KoOCR():
         plt.savefig('./logs/image.png')
         print(pred_y)
   
-    def compile_model(self,lr,opt):
+    def compile_model(self,lr,opt,adversarial_ratio=0):
         #Compile model 
         if opt =='sgd':
             optimizer=tf.keras.optimizers.SGD(lr,clipvalue=0.1)
@@ -69,18 +69,30 @@ class KoOCR():
             optimizer=AdaBound(lr=lr,final_lr=lr*100,clipvalue=0.1)
         
         if self.iterative_refinement:
-            losses="categorical_crossentropy"
+            losses="sparse_categorical_crossentropy"
         elif self.split_components:
-            losses = {
-                "CHOSUNG": "categorical_crossentropy",
-                "JUNGSUNG": "categorical_crossentropy",
-                "JONGSUNG": "categorical_crossentropy"}
+            if self.adversarial_learning:
+                losses = {
+                    "CHOSUNG": "sparse_categorical_crossentropy",
+                    "JUNGSUNG": "sparse_categorical_crossentropy",
+                    "JONGSUNG": "sparse_categorical_crossentropy",
+                    'disc':"binary_crossentropy"}
+                lossWeights = {"CHOSUNG": 1.0-adversarial_ratio, "JUNGSUNG": 1.0-adversarial_ratio,
+                    "JONGSUNG":1.0-adversarial_ratio,"disc":3*adversarial_ratio}
+            else:
+                losses = {
+                    "CHOSUNG": "sparse_categorical_crossentropy",
+                    "JUNGSUNG": "sparse_categorical_crossentropy",
+                    "JONGSUNG": "sparse_categorical_crossentropy"}
+                lossWeights = {"CHOSUNG": 1.0, "JUNGSUNG": 1.0,"JONGSUNG":1.0}
         else:
-            losses="categorical_crossentropy"
+            losses="sparse_categorical_crossentropy"
+            lossWeights=None
 
-        self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"])
+        self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"],loss_weights=lossWeights)
 
-    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False):
+    def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
+            adversarial_ratio=0.15):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -100,12 +112,13 @@ class KoOCR():
                     tf.summary.scalar('val_accuracy', history.history['val_accuracy'][0], step=step)
         
 
-        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size)
+        train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size,
+            return_image_type=self.adversarial_learning)
         val_x,val_y=train_dataset.get_val()
         if self.iterative_refinement:
             val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
 
-        self.compile_model(lr,optimizer)
+        self.compile_model(lr,optimizer,adversarial_ratio)
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
         

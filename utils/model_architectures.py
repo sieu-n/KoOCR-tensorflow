@@ -3,7 +3,7 @@ import numpy as np
 import utils.korean_manager as korean_manager
 import utils.CustomLayers as CustomLayers
 from utils.model_components import build_FC,PreprocessingPipeline
-        
+
 def VGG16(settings):
     if settings['direct_map']:
         input_channels=8
