@@ -16,7 +16,7 @@ def melnyk_net(settings):
 	random_normal = RandomNormal(stddev=0.001)
 	reg=0
 
-	input_image=Input(shape=(settings['input_shape'],settings['input_shape']))
+	input_image=Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
 	preprocessed=Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
 	preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
 

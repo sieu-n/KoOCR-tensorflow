@@ -41,7 +41,7 @@ class DataPickleLoader():
             labels=korean_manager.korean_numpy(data['label'])
         types=np.repeat(int(self.val_file_list[0].split('_')=='handwritten'),images.shape[0])
 
-        for idx,pkl in self.val_file_list[1:int(len(self.val_file_list)*prob)]:
+        for pkl in self.val_file_list[1:int(len(self.val_file_list)*prob)]:
             data=self.load_pickle(os.path.join(self.val_data_path,pkl))
             images=np.concatenate((images,data['image']),axis=0)
 
@@ -51,12 +51,12 @@ class DataPickleLoader():
                 cho=np.concatenate((cho,cho_))
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
-                types=np.concatenate((types, np.repeat(int(pkl.split('_')=='handwritten'),images.shape[0])))
+                types=np.concatenate((types, np.repeat(int(pkl.split('_')=='handwritten'),data['image'].shape[0])))
             else:
                 labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
         
         #Random shuffle data
-        ind_list = [i for i in range(N)]
+        ind_list = list(range(types.shape[0]))
         random.shuffle(ind_list)
 
         if self.split_components==True:
@@ -88,6 +88,7 @@ class DataPickleLoader():
             cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         else:
             labels=korean_manager.korean_numpy(data['label'])
+        types=np.repeat(int(self.file_list[self.current_idx].split('_')=='handwritten'),images.shape[0])
 
         path_slice=self.file_list[self.current_idx+1:next_idx]
         for pkl in progressbar.progressbar(path_slice):
@@ -100,6 +101,7 @@ class DataPickleLoader():
                 cho=np.concatenate((cho,cho_))
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
+                types=np.concatenate((types, np.repeat(int(pkl.split('_')=='handwritten'),data['image'].shape[0])))
             else:
                 labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
             
@@ -109,13 +111,15 @@ class DataPickleLoader():
         if self.current_idx==len(self.file_list):
             self.mix_indicies()
             self.current_idx=0
-        
+            
+        ind_list = list(range(types.shape[0]))
+        random.shuffle(ind_list)
         if self.split_components==True:
             #One hot encode labels and return
-            cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))
-            jung=tf.one_hot(jung,len(korean_manager.JUNGSUNG_LIST))
-            jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
-            return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong},did_reset
+            if self.return_image_type:
+                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'disc':types[ind_list]},did_reset
+            else:
+                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list]},did_reset
         else:
             labels=tf.one_hot(labels,len(korean_manager.load_charset()))
             return images,labels,did_reset

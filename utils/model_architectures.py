@@ -12,7 +12,7 @@ def VGG16(settings):
     VGG_net = tf.keras.applications.VGG16(input_shape=(settings['input_shape'],settings['input_shape'],input_channels),
                                                include_top=False,weights=None)
 
-    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
+    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
     preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
     
@@ -37,7 +37,7 @@ def EfficientCNN(settings):
         fire=tf.keras.layers.concatenate([fire1,fire2])
         return fire
 
-    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
+    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
     preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
 
@@ -67,7 +67,7 @@ def InceptionResnetV2(settings):
     InceptionResnet = tf.keras.applications.InceptionResNetV2(input_shape=(settings['input_shape'],settings['input_shape'],input_channels),
                                                include_top=False,weights=None)
 
-    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
+    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
     preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
 
@@ -83,7 +83,7 @@ def MobilenetV3(settings):
     Mobilenet = tf.keras.applications.MobileNetV3Small(input_shape=(settings['input_shape'],settings['input_shape'],input_channels),
                                                include_top=False, weights=None)
 
-    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']))
+    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
     preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
     

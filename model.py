@@ -10,7 +10,7 @@ from IPython.display import clear_output
 import gc
 import datetime
 import shutil
-
+from tqdm import tqdm
 from keras_adabound import AdaBound
 import utils.predict_char as predict_char
 from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
@@ -34,6 +34,7 @@ class KoOCR():
         
         if iterative_refinement:
             self.decoders=self.find_decoders()
+        
     def find_decoders(self):
          return 0
          
@@ -58,15 +59,41 @@ class KoOCR():
             plt.axis('off')
         plt.savefig('./logs/image.png')
         print(pred_y)
-  
+
+    def compile_adversarial_model(self,lr,opt,adversarial_ratio=0):
+        #build adversarial model for training
+        input_image=self.model.input
+        feature_map=self.model.get_layer('disc_start').input
+        disc_output=self.model.get_layer('DISC').output
+
+        self.model.trainable=False
+        discriminator=tf.keras.models.Model(feature_map,disc_output)
+        discriminator.trainable=True
+
+        self.discriminator=tf.keras.models.Model(input_image,disc_output)
+
+        lr=lr*adversarial_ratio*3
+        if opt =='sgd':
+            optimizer=tf.keras.optimizers.SGD(lr)
+        elif opt=='adam':
+            optimizer=tf.keras.optimizers.Adam(lr)
+        elif opt=='adabound':
+            optimizer=AdaBound(lr=lr,final_lr=lr*100)
+
+        self.discriminator.compile(optimizer=optimizer,loss='binary_crossentropy')
+
     def compile_model(self,lr,opt,adversarial_ratio=0):
+        def inverse_bce(y_true,y_pred):
+            y_true=y_true*-1+1
+            return tf.keras.losses.BinaryCrossentropy(y_true,y_pred)
+
         #Compile model 
         if opt =='sgd':
-            optimizer=tf.keras.optimizers.SGD(lr,clipvalue=0.1)
+            optimizer=tf.keras.optimizers.SGD(lr)
         elif opt=='adam':
-            optimizer=tf.keras.optimizers.Adam(lr,clipvalue=0.1)
+            optimizer=tf.keras.optimizers.Adam(lr)
         elif opt=='adabound':
-            optimizer=AdaBound(lr=lr,final_lr=lr*100,clipvalue=0.1)
+            optimizer=AdaBound(lr=lr,final_lr=lr*100)
         
         if self.iterative_refinement:
             losses="sparse_categorical_crossentropy"
@@ -76,9 +103,9 @@ class KoOCR():
                     "CHOSUNG": "sparse_categorical_crossentropy",
                     "JUNGSUNG": "sparse_categorical_crossentropy",
                     "JONGSUNG": "sparse_categorical_crossentropy",
-                    'disc':"binary_crossentropy"}
+                    'DISC':inverse_bce}
                 lossWeights = {"CHOSUNG": 1.0-adversarial_ratio, "JUNGSUNG": 1.0-adversarial_ratio,
-                    "JONGSUNG":1.0-adversarial_ratio,"disc":3*adversarial_ratio}
+                    "JONGSUNG":1.0-adversarial_ratio,"DISC":3*adversarial_ratio}
             else:
                 losses = {
                     "CHOSUNG": "sparse_categorical_crossentropy",
@@ -90,7 +117,14 @@ class KoOCR():
             lossWeights=None
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"],loss_weights=lossWeights)
+    def fit_adversarial(train_x,train_y,val_x,val_y,batch_size):
+        train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
+        for image,label in tqdm(train_dataset):
+            self.model.train_on_batch(image,label)
+            self.discriminator.train_on_batch(image,label['DISC'])
 
+        results = model.evaluate(x_test, y_test, batch_size=128)
+        print("Results:", results)
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
             adversarial_ratio=0.15):
         def write_tensorboard(summary_writer,history,step):
@@ -119,6 +153,9 @@ class KoOCR():
             val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
 
         self.compile_model(lr,optimizer,adversarial_ratio)
+        if self.adversarial_learning:
+            self.compile_adversarial_model(lr,optimizer,adversarial_ratio)
+
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
         step=0
         
@@ -131,15 +168,17 @@ class KoOCR():
                 train_x,train_y,epoch_end=train_dataset.get()
                 if self.iterative_refinement:
                     train_y=[train_y['CHOSUNG'],train_y['JUNGSUNG'],train_y['JONGSUNG']]*self.refinement_t
-                history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
 
+                if self.adversarial_training:
+                    history=fit_adversarial(train_x,train_y,val_x,val_y,batch_size)
+                else:
+                    history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
                 #Log losses to Tensorboard
                 write_tensorboard(summary_writer,history,step)
                 step+=1
                 #Clear garbage memory
                 tf.keras.backend.clear_session()
                 gc.collect()
-                clear_output(wait=True)
                 
             #Save weights in checkpoint
             self.model.save('./logs/weights', save_format='tf')
