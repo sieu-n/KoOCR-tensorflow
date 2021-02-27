@@ -65,7 +65,6 @@ class KoOCR():
         input_image=self.model.input
 
         self.model.trainable=False
-        new_input=tf.keras.layers.Input(shape=feature_map.input.shape[1:])
 
         feature_map=self.model.get_layer('disc_start')
         disc_output=self.model.get_layer('DISC')
