@@ -87,7 +87,7 @@ class KoOCR():
     def compile_model(self,lr,opt,adversarial_ratio=0):
         def inverse_bce(y_true,y_pred):
             y_true=y_true*-1+1
-            return tf.keras.losses.BinaryCrossentropy(y_true,y_pred)
+            return tf.keras.losses.binary_crossentropy(y_true,y_pred)
 
         #Compile model 
         if opt =='sgd':
@@ -119,14 +119,16 @@ class KoOCR():
             lossWeights=None
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"],loss_weights=lossWeights)
-    def fit_adversarial(train_x,train_y,val_x,val_y,batch_size):
+    def fit_adversarial(self,train_x,train_y,val_x,val_y,batch_size):
         train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
-        for image,label in tqdm(train_dataset):
-            self.model.train_on_batch(image,label)
+        pbar=tqdm(train_dataset)
+        for image,label in pbar:
+            out=tself.model.train_on_batch(image,label)
             self.discriminator.train_on_batch(image,label['DISC'])
-
+            pbar.set_description("Loss:",out[:len(out)//2],"  Accuracy:",out[len(out)//2:])
         results = model.evaluate(x_test, y_test, batch_size=128)
         print("Results:", results)
+
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
             adversarial_ratio=0.15):
         def write_tensorboard(summary_writer,history,step):
@@ -171,8 +173,8 @@ class KoOCR():
                 if self.iterative_refinement:
                     train_y=[train_y['CHOSUNG'],train_y['JUNGSUNG'],train_y['JONGSUNG']]*self.refinement_t
 
-                if self.adversarial_training:
-                    history=fit_adversarial(train_x,train_y,val_x,val_y,batch_size)
+                if self.adversarial_learning:
+                    history=self.fit_adversarial(train_x,train_y,val_x,val_y,batch_size)
                 else:
                     history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
                 #Log losses to Tensorboard

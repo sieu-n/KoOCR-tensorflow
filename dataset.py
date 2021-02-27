@@ -66,7 +66,7 @@ class DataPickleLoader():
             #jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             
             if self.return_image_type:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'disc':types[ind_list]}
+                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'DISC':types[ind_list]}
             else:
                 return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list]}
         else:
@@ -117,7 +117,7 @@ class DataPickleLoader():
         if self.split_components==True:
             #One hot encode labels and return
             if self.return_image_type:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'disc':types[ind_list]},did_reset
+                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'DISC':types[ind_list]},did_reset
             else:
                 return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list]},did_reset
         else:
