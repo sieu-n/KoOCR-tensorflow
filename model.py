@@ -132,7 +132,7 @@ class KoOCR():
         print("Results:", results)
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
-            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False):
+            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -151,7 +151,18 @@ class KoOCR():
                     tf.summary.scalar('training_accuracy', history.history['val_loss'][0], step=step)
                     tf.summary.scalar('val_accuracy', history.history['val_accuracy'][0], step=step)
         
-
+        def setup_wandboard():
+            wandb.init(project="KoOCR", config={
+                'AFL': self.adversarial_learning,
+                'Iterative Refinement': self.iteratve_refinement,
+                "optiminzer": optimizer,
+                "batch_size": batch_size,
+                'learning_rate':lr,
+                'AFL ratio':adversarial_ratio,
+                'Split components':self.split_components
+            })
+        def write_wandb(history):
+            wandb.log(history)
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size,
             return_image_type=self.adversarial_learning)
         val_x,val_y=train_dataset.get_val()
@@ -163,8 +174,8 @@ class KoOCR():
             self.compile_adversarial_model(lr,optimizer,adversarial_ratio)
 
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
-        if log_wandb:
-            
+        if setup_wandb:
+            setup_wandboard()
         step=0
         
         for epoch in range(epochs):
