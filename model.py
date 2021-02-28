@@ -8,6 +8,7 @@ import random
 import os
 from IPython.display import clear_output
 import gc
+import wandb
 import datetime
 import shutil
 from tqdm import tqdm
@@ -98,24 +99,24 @@ class KoOCR():
             optimizer=AdaBound(lr=lr,final_lr=lr*100)
         
         if self.iterative_refinement:
-            losses="sparse_categorical_crossentropy"
+            losses="categorical_crossentropy"
         elif self.split_components:
             if self.adversarial_learning:
                 losses = {
-                    "CHOSUNG": "sparse_categorical_crossentropy",
-                    "JUNGSUNG": "sparse_categorical_crossentropy",
-                    "JONGSUNG": "sparse_categorical_crossentropy",
+                    "CHOSUNG": "categorical_crossentropy",
+                    "JUNGSUNG": "categorical_crossentropy",
+                    "JONGSUNG": "categorical_crossentropy",
                     'DISC':inverse_bce}
                 lossWeights = {"CHOSUNG": 1.0-adversarial_ratio, "JUNGSUNG": 1.0-adversarial_ratio,
                     "JONGSUNG":1.0-adversarial_ratio,"DISC":3*adversarial_ratio}
             else:
                 losses = {
-                    "CHOSUNG": "sparse_categorical_crossentropy",
-                    "JUNGSUNG": "sparse_categorical_crossentropy",
-                    "JONGSUNG": "sparse_categorical_crossentropy"}
+                    "CHOSUNG": "categorical_crossentropy",
+                    "JUNGSUNG": "categorical_crossentropy",
+                    "JONGSUNG": "categorical_crossentropy"}
                 lossWeights = {"CHOSUNG": 1.0, "JUNGSUNG": 1.0,"JONGSUNG":1.0}
         else:
-            losses="sparse_categorical_crossentropy"
+            losses="categorical_crossentropy"
             lossWeights=None
 
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"],loss_weights=lossWeights)
@@ -124,14 +125,14 @@ class KoOCR():
         train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
         pbar=tqdm(train_dataset)
         for image,label in pbar:
-            out=tself.model.train_on_batch(image,label)
+            out=self.model.train_on_batch(image,label)
             self.discriminator.train_on_batch(image,label['DISC'])
-            pbar.set_description("Loss:",out[:len(out)//2],"  Accuracy:",out[len(out)//2:])
+            pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = model.evaluate(x_test, y_test, batch_size=128)
         print("Results:", results)
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
-            adversarial_ratio=0.15):
+            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -162,6 +163,8 @@ class KoOCR():
             self.compile_adversarial_model(lr,optimizer,adversarial_ratio)
 
         summary_writer = tf.summary.create_file_writer("./logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+        if log_wandb:
+            
         step=0
         
         for epoch in range(epochs):
@@ -179,7 +182,10 @@ class KoOCR():
                 else:
                     history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
                 #Log losses to Tensorboard
-                write_tensorboard(summary_writer,history,step)
+                if log_tensorboard:
+                    write_tensorboard(summary_writer,history,step)
+                if log_wandb:
+                    write_wandb(history)
                 step+=1
                 #Clear garbage memory
                 tf.keras.backend.clear_session()

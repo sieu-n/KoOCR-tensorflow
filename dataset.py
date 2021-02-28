@@ -61,9 +61,9 @@ class DataPickleLoader():
 
         if self.split_components==True:
             #One hot encode labels and return
-            #cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))
-            #jung=tf.one_hot(jung,len(korean_manager.JUNGSUNG_LIST))
-            #jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
+            cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))
+            jung=tf.one_hot(jung,len(korean_manager.JUNGSUNG_LIST))
+            jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             
             if self.return_image_type:
                 return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'DISC':types[ind_list]}
@@ -116,10 +116,13 @@ class DataPickleLoader():
         random.shuffle(ind_list)
         if self.split_components==True:
             #One hot encode labels and return
+            cho=tf.one_hot(cho,len(korean_manager.CHOSUNG_LIST))
+            jung=tf.one_hot(jung,len(korean_manager.JUNGSUNG_LIST))
+            jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             if self.return_image_type:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'DISC':types[ind_list]},did_reset
+                return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong,'DISC':types},did_reset
             else:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list]},did_reset
+                return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong},did_reset
         else:
             labels=tf.one_hot(labels,len(korean_manager.load_charset()))
             return images,labels,did_reset
