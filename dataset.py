@@ -66,9 +66,9 @@ class DataPickleLoader():
             jong=tf.one_hot(jong,len(korean_manager.JONGSUNG_LIST))
             
             if self.return_image_type:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list],'DISC':types[ind_list]}
+                return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong,'DISC':types}
             else:
-                return images,{'CHOSUNG':cho[ind_list],'JUNGSUNG':jung[ind_list],'JONGSUNG':jong[ind_list]}
+                return images,{'CHOSUNG':cho,'JUNGSUNG':jung,'JONGSUNG':jong}
         else:
             return images,labels[ind_list]
 

@@ -28,6 +28,10 @@ parser.add_argument("--data_augmentation", type=str2bool,default=False)
 parser.add_argument("--adversarial_learning", type=str2bool,default=False)
 parser.add_argument("--adversarial_ratio", type=float,default=0.15)
 
+parser.add_argument("--log_tensorboard", type=str2bool,default=True)
+parser.add_argument("--log_wandb", type=str2bool,default=False)
+parser.add_argument("--setup_wandb", type=str2bool,default=False)
+
 parser.add_argument("--optimizer", type=str,default='adabound',choices=['sgd', 'adam','adabound'])
 parser.add_argument("--direct_map", type=str2bool,default=False)
 parser.add_argument("--batch_size", type=int,default=32)
@@ -42,4 +46,5 @@ if __name__=='__main__':
         network_type=args.network,image_size=args.image_size,direct_map=args.direct_map,refinement_t=args.refinement_t,data_augmentation=args.data_augmentation,
         adversarial_learning=args.adversarial_learning)
     KoOCR.train(epochs=args.epochs,lr=args.learning_rate,data_path=args.data_path,patch_size=args.patch_size,batch_size=args.batch_size,optimizer=args.optimizer,
-        zip_weights=args.zip_weights,adversarial_ratio=args.adversarial_ratio)
+        zip_weights=args.zip_weights,adversarial_ratio=args.adversarial_ratio,log_tensorboard=args.log_tensorboard,log_wandb=args.log_wandb,
+        setup_wandb=args.setup_wandb)

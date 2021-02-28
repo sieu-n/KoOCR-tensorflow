@@ -128,9 +128,9 @@ class KoOCR():
             out=self.model.train_on_batch(image,label)
             self.discriminator.train_on_batch(image,label['DISC'])
             pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
-        results = model.evaluate(x_test, y_test, batch_size=128)
+        results = self.model.evaluate(x_test, y_test, batch_size=128)
         print("Results:", results)
-
+        return 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
             adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False):
         def write_tensorboard(summary_writer,history,step):
