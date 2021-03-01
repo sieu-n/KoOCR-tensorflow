@@ -65,7 +65,8 @@ class KoOCR():
         #build adversarial model for training
         input_image=self.model.input
 
-        self.model.trainable=False
+        for l in self.model.layers:
+            l.trainable=False
 
         feature_map=self.model.get_layer('disc_start')
         disc_output=self.model.get_layer('DISC')
@@ -131,8 +132,8 @@ class KoOCR():
         results = self.model.evaluate(val_x, val_y, batch_size=128)
         print("Results:", results)
 
-        loss_dict = {name+'_loss': pred for name, pred in zip(self.model.output_names, out[:len(out)//2]))}
-        acc_dict = {name+'_accuracy': pred for name, pred in zip(self.model.output_names, out[len(out)//2:]))}
+        loss_dict = {name+'_loss': pred for name, pred in zip(self.model.output_names, out[:len(out)//2])}
+        acc_dict = {name+'_accuracy': pred for name, pred in zip(self.model.output_names, out[len(out)//2:])}
         z = {**loss_dict, **acc_dict}
         return z
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
