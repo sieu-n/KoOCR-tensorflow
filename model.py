@@ -128,7 +128,7 @@ class KoOCR():
         for image,label in pbar:
             out=self.model.train_on_batch(image,label)
             self.discriminator.train_on_batch(image,label['DISC'])
-            pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
+            #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128)
         print("Results:", results)
 
