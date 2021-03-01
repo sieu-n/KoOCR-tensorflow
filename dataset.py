@@ -39,7 +39,7 @@ class DataPickleLoader():
             cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         else:
             labels=korean_manager.korean_numpy(data['label'])
-        types=np.repeat(int(self.val_file_list[0].split('_')=='handwritten'),images.shape[0])
+        types=np.repeat(int(self.val_file_list[0].split('_')[0]=='handwritten'),images.shape[0])
 
         for pkl in self.val_file_list[1:int(len(self.val_file_list)*prob)]:
             data=self.load_pickle(os.path.join(self.val_data_path,pkl))
@@ -51,7 +51,7 @@ class DataPickleLoader():
                 cho=np.concatenate((cho,cho_))
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
-                types=np.concatenate((types, np.repeat(int(pkl.split('_')=='handwritten'),data['image'].shape[0])))
+                types=np.concatenate((types, np.repeat(int(pkl.split('_')[0]=='handwritten'),data['image'].shape[0])))
             else:
                 labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
         
@@ -88,7 +88,7 @@ class DataPickleLoader():
             cho,jung,jong=korean_manager.korean_split_numpy(data['label'])
         else:
             labels=korean_manager.korean_numpy(data['label'])
-        types=np.repeat(int(self.file_list[self.current_idx].split('_')=='handwritten'),images.shape[0])
+        types=np.repeat(int(self.file_list[self.current_idx].split('_')[0]=='handwritten'),images.shape[0])
 
         path_slice=self.file_list[self.current_idx+1:next_idx]
         for pkl in progressbar.progressbar(path_slice):
@@ -101,7 +101,7 @@ class DataPickleLoader():
                 cho=np.concatenate((cho,cho_))
                 jung=np.concatenate((jung,jung_))
                 jong=np.concatenate((jong,jong_))
-                types=np.concatenate((types, np.repeat(int(pkl.split('_')=='handwritten'),data['image'].shape[0])))
+                types=np.concatenate((types, np.repeat(int(pkl.split('_')[0]=='handwritten'),data['image'].shape[0])))
             else:
                 labels=np.concatenate((labels,korean_manager.korean_numpy(data['label'])))
             
