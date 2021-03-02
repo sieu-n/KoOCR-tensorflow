@@ -61,22 +61,16 @@ class KoOCR():
         plt.savefig('./logs/image.png')
         print(pred_y)
 
-    def set_trainable_model(self):
-        self.model.trainable=True
-        self.model.get_layer('disc_start').trainable=False
-        self.model.get_layer('DISC').trainable=False
-
-    def set_trainable_discriminator(self):
-        self.model.trainable=False
-        self.model.get_layer('disc_start').trainable=True
-        self.model.get_layer('DISC').trainable=True
-
     def compile_adversarial_model(self,lr,opt,adversarial_ratio=0):
         #build adversarial model for training
         input_image=self.model.input
         disc_output=self.model.get_layer('DISC')
 
         self.discriminator=tf.keras.models.Model(self.model.input,disc_output.output)
+
+        self.model.trainable=False
+        self.model.get_layer('disc_start').trainable=True
+        self.model.get_layer('DISC').trainable=True
 
         lr=lr*adversarial_ratio*3
         if opt =='sgd':
@@ -128,10 +122,7 @@ class KoOCR():
         train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
         pbar=tqdm(train_dataset)
         for image,label in pbar:
-            self.set_trainable_model()
             out=self.model.train_on_batch(image,label)
-            
-            self.set_trainable_discriminator()
             self.discriminator.train_on_batch(image,label['DISC'])
             #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128)
