@@ -23,11 +23,11 @@ def build_FC_split(input_image,x,settings):
         x=tf.keras.layers.GlobalAveragePooling2D()(x)
     elif settings['fc_link']=='GWAP':
         x=CustomLayers.GlobalWeightedAveragePooling()(x)
-    x=tf.keras.layers.Dense(1024)(x)
+    dense=tf.keras.layers.Dense(1024)(x)
 
-    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(x)
-    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(x)
-    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(x)
+    CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(dense)
+    JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(dense)
+    JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(dense)
     #Define discriminator
     if settings['adversarial_learning']:
         disc=tf.keras.layers.Dense(512,name='disc_start',trainable=False)(x)
