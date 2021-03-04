@@ -104,8 +104,11 @@ class KoOCR():
                     "JUNGSUNG": "categorical_crossentropy",
                     "JONGSUNG": "categorical_crossentropy",
                     'DISC':inverse_bce}
-                lossWeights = {"CHOSUNG": 1.0-adversarial_ratio, "JUNGSUNG": 1.0-adversarial_ratio,
-                    "JONGSUNG":1.0-adversarial_ratio,"DISC":3*adversarial_ratio}
+                if self.fit_discriminator:
+                    lossWeights = {"CHOSUNG": 1.0-adversarial_ratio, "JUNGSUNG": 1.0-adversarial_ratio,
+                        "JONGSUNG":1.0-adversarial_ratio,"DISC":3*adversarial_ratio}
+                else:
+                    lossWeights = {"CHOSUNG": 1.0, "JUNGSUNG": 1.0,"JONGSUNG":1.0,"DISC":0}
             else:
                 losses = {
                     "CHOSUNG": "categorical_crossentropy",
@@ -123,7 +126,8 @@ class KoOCR():
         pbar=tqdm(train_dataset)
         for image,label in pbar:
             out=self.model.train_on_batch(image,label)
-            self.discriminator.train_on_batch(image,label['DISC'])
+            if self.fit_discriminator:
+                self.discriminator.train_on_batch(image,label['DISC'])
             #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128)
         print("Results:", results)
@@ -132,8 +136,9 @@ class KoOCR():
         acc_dict = {name+'_accuracy': pred for name, pred in zip(self.model.output_names, out[len(out)//2:])}
         z = {**loss_dict, **acc_dict}
         return z
+
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
-            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False):
+            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False,fit_discriminator=True):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -169,7 +174,7 @@ class KoOCR():
         val_x,val_y=train_dataset.get_val()
         if self.iterative_refinement:
             val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
-
+        self.fit_discriminator=fit_discriminator
         self.compile_model(lr,optimizer,adversarial_ratio)
         if self.adversarial_learning:
             self.compile_adversarial_model(lr,optimizer,adversarial_ratio)

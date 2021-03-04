@@ -25,6 +25,7 @@ parser.add_argument("--fc_link", type=str,default='',choices=['', 'GAP','GWAP','
 parser.add_argument("--iterative_refinement", type=str2bool,default=False)
 parser.add_argument("--refinement_t", type=int,default=4)
 parser.add_argument("--data_augmentation", type=str2bool,default=False)
+parser.add_argument("--fit_discriminator", type=str2bool,default=True)
 parser.add_argument("--adversarial_learning", type=str2bool,default=False)
 parser.add_argument("--adversarial_ratio", type=float,default=0.15)
 
@@ -47,4 +48,4 @@ if __name__=='__main__':
         adversarial_learning=args.adversarial_learning)
     KoOCR.train(epochs=args.epochs,lr=args.learning_rate,data_path=args.data_path,patch_size=args.patch_size,batch_size=args.batch_size,optimizer=args.optimizer,
         zip_weights=args.zip_weights,adversarial_ratio=args.adversarial_ratio,log_tensorboard=args.log_tensorboard,log_wandb=args.log_wandb,
-        setup_wandb=args.setup_wandb)
+        setup_wandb=args.setup_wandb,fit_discriminator=args.fit_discriminator)
