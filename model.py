@@ -123,7 +123,11 @@ class KoOCR():
 
     def fit_adversarial(self,train_x,train_y,val_x,val_y,batch_size):
         train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
-        pbar=tqdm(train_dataset)
+
+        if self.verbose==1:
+            pbar=tqdm(train_dataset)
+        else:
+            pbar=train_dataset
         for image,label in pbar:
             out=self.model.train_on_batch(image,label)
             if self.fit_discriminator:
@@ -138,7 +142,7 @@ class KoOCR():
         return z
 
     def train(self,epochs=10,lr=0.001,data_path='./data',patch_size=10,batch_size=32,optimizer='adabound',zip_weights=False,
-            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False,fit_discriminator=True):
+            adversarial_ratio=0.15,log_tensorboard=True,log_wandb=False,setup_wandb=False,fit_discriminator=True,silent_mode=False):
         def write_tensorboard(summary_writer,history,step):
              with summary_writer.as_default():
                 if self.split_components:
@@ -184,6 +188,11 @@ class KoOCR():
             setup_wandboard()
         step=0
         
+        if silent_mode:
+            self.verbose=0
+        else:
+            self.verbose=1
+
         for epoch in range(epochs):
             print('Training epoch',epoch)
             self.plot_val_image(val_data=(val_x,val_y))
@@ -197,7 +206,7 @@ class KoOCR():
                 if self.adversarial_learning:
                     history=self.fit_adversarial(train_x,train_y,val_x,val_y,batch_size)
                 else:
-                    history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size)
+                    history=self.model.fit(x=train_x,y=train_y,epochs=1,validation_data=(val_x,val_y),batch_size=batch_size,verbose=self.verbose)
                 #Log losses to Tensorboard
                 if log_tensorboard:
                     write_tensorboard(summary_writer,history,step)
