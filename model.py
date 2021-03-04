@@ -174,7 +174,7 @@ class KoOCR():
         def write_wandb(history):
             wandb.log(history)
         train_dataset=dataset.DataPickleLoader(split_components=self.split_components,data_path=data_path,patch_size=patch_size,
-            return_image_type=self.adversarial_learning)
+            return_image_type=self.adversarial_learning,silent_mode=silent_mode)
         val_x,val_y=train_dataset.get_val()
         if self.iterative_refinement:
             val_y=[val_y['CHOSUNG'],val_y['JUNGSUNG'],val_y['JONGSUNG']]*self.refinement_t
