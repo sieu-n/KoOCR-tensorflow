@@ -189,7 +189,7 @@ class KoOCR():
         step=0
         
         if silent_mode:
-            self.verbose=0
+            self.verbose=2
         else:
             self.verbose=1
 
