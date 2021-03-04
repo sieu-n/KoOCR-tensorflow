@@ -10,13 +10,14 @@ import progressbar
 class DataPickleLoader():
     #Load data patch by patch
     def __init__(self,patch_size=10,data_path='./data',val_data_path='./val_data',split_components=True,val_data=.1,
-            return_image_type=False):
+            return_image_type=False,silent_mode=False):
         self.data_path=data_path
         self.val_data_path=val_data_path
         self.patch_size=patch_size
         self.split_components=split_components
         self.return_image_type=return_image_type
         self.current_idx=0
+        self.silent_mode=silent_mode
 
         file_list=fnmatch.filter(os.listdir(data_path), '*.pickle')
         val_file_list=fnmatch.filter(os.listdir(val_data_path), '*.pickle')
@@ -91,7 +92,12 @@ class DataPickleLoader():
         types=np.repeat(int(self.file_list[self.current_idx].split('_')[0]=='handwritten'),images.shape[0])
 
         path_slice=self.file_list[self.current_idx+1:next_idx]
-        for pkl in progressbar.progressbar(path_slice):
+
+        if self.silent_mode:
+            prog=path_slice
+        else:
+            prog=progressbar.progressbar(path_slice)
+        for pkl in prog:
             data=self.load_pickle(os.path.join(self.data_path,pkl))
             images=np.concatenate((images,data['image']),axis=0)
 
