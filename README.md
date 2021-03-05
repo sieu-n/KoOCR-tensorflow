@@ -22,7 +22,7 @@ Open-source Korean OCR engine based on Tensorflow, deep-learning.
 - [x] High-performance network architecture, CAM, GAP/GWAP/GWOAP: A High-Performance CNN Method for Offline Handwritten Chinese Character Recognition and Visualization
 - [ ] Hybrid learning loss: Improving Discrimination Ability of Convolutional Neural Networks by Hybrid Learning
 - [ ] Adaptive Drop Weight, GSLRE: Building Fast and Compact Convolutional Neural Networks for Offline Handwritten Chinese Character Recognition
-- [ ] Adversarial Feature Learning: Robust offline handwritten character recognition through exploring writer-independent features under the guidance of printed data
+- [x] Adversarial Feature Learning: Robust offline handwritten character recognition through exploring writer-independent features under the guidance of printed data
 - [ ] DenseRAN style model: DenseRAN for Offline Handwritten Chinese Character Recognition
 - [x] Iterative Refinemet: Improving Offline Handwritten Chinese Character Recognition by Iterative Refinement
 
