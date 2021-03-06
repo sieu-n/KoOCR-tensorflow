@@ -31,8 +31,8 @@ def build_FC_split(input_image,x,settings):
     #Define discriminator
     if settings['adversarial_learning']:
         disc=tf.keras.layers.Dense(512,name='disc_start',trainable=False)(x)
-        disc=tf.keras.layers.BatchNormalization()(disc)
         disc=tf.keras.layers.LeakyReLU()(disc)
+        disc=tf.keras.layers.Dropout(0.5)(disc)
         disc=tf.keras.layers.Dense(1,activation='sigmoid',name='DISC',trainable=False)(disc)
 
         return Model(inputs=input_image,outputs=[CHO,JUNG,JONG,disc])

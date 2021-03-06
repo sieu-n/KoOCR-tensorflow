@@ -32,7 +32,6 @@ class KoOCR():
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
                 'iterative_refinement':iterative_refinement,'data_augmentation':data_augmentation,'adversarial_learning':adversarial_learning}
             self.model=model_list[network_type](settings)
-        
         if iterative_refinement:
             self.decoders=self.find_decoders()
         
@@ -118,7 +117,12 @@ class KoOCR():
         else:
             losses="categorical_crossentropy"
             lossWeights=None
-
+            
+        if self.adversarial_learning:
+            self.model.trainable=True
+            self.model.get_layer('disc_start').trainable=False
+            self.model.get_layer('DISC').trainable=False
+            
         self.model.compile(optimizer=optimizer, loss=losses,metrics=["accuracy"],loss_weights=lossWeights)
 
     def fit_adversarial(self,train_x,train_y,val_x,val_y,batch_size):

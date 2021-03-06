@@ -57,7 +57,7 @@ def EfficientCNN(settings):
     fire10=fire_block(fire9,512)
     fire11=fire_block(fire10,512)
 
-    return build_FC(fire11,settings)
+    return build_FC(input_image,fire11,settings)
     
 def InceptionResnetV2(settings):
     if settings['direct_map']:
@@ -89,4 +89,33 @@ def MobilenetV3(settings):
     
     feature=Mobilenet(preprocessed)
     
+    return build_FC(input_image,x,settings)
+
+def AFL_Model(settings):
+    if settings['direct_map']:
+        input_channels=8
+    else:
+        input_channels=1
+    input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
+    preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
+    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    
+    def conv_block(channels,kernel_size=3,strides=1,bn=True):
+        m=tf.keras.models.Sequential([
+            tf.keras.layers.Conv2D(channels,kernel_size,strides=strides,padding='same'),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.LeakyReLU()
+        ])
+        return m
+    
+    x=conv_block(96)(preprocessed)
+    x=conv_block(96,strides=2)(x)
+    x=conv_block(128)(x)
+    x=conv_block(128,strides=2)(x)
+    x=conv_block(160)(x)
+    x=conv_block(160,strides=2)(x)
+    x=conv_block(256)(x)
+    x=conv_block(256,strides=2)(x)
+    x=conv_block(256)(x)
+
     return build_FC(input_image,x,settings)
