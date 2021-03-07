@@ -139,8 +139,7 @@ class KoOCR():
                 self.discriminator.train_on_batch(image,label['DISC'])
             #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128,verbose=self.verbose)
-        print("Results:", results)
-
+        #print("Results:", results)
         print(out)
         loss_dict = {name+'_loss': pred for name, pred in zip(self.model.output_names, out[:len(out)//2])}
         acc_dict = {name+'_accuracy': pred for name, pred in zip(self.model.output_names, out[len(out)//2:])}
