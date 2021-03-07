@@ -14,7 +14,7 @@ import shutil
 from tqdm import tqdm
 from keras_adabound import AdaBound
 import utils.predict_char as predict_char
-from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN
+from utils.model_architectures import VGG16,InceptionResnetV2,MobilenetV3,EfficientCNN,AFL_Model
 from utils.MelnykNet import melnyk_net
 class KoOCR():
     def __init__(self,split_components=True,weight_path='',fc_link='',network_type='melnyk',image_size=96,direct_map=False,refinement_t=4,\
@@ -28,7 +28,8 @@ class KoOCR():
         if weight_path:
             self.model = tf.keras.models.load_model(weight_path,compile=False)
         else:
-            model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net}
+            model_list={'VGG16':VGG16,'inception-resnet':InceptionResnetV2,'mobilenet':MobilenetV3,'efficient-net':EfficientCNN,'melnyk':melnyk_net,
+                'afl',AFL_Model}
             settings={'split_components':split_components,'input_shape':image_size,'direct_map':direct_map,'fc_link':fc_link,'refinement_t':refinement_t,\
                 'iterative_refinement':iterative_refinement,'data_augmentation':data_augmentation,'adversarial_learning':adversarial_learning}
             self.model=model_list[network_type](settings)

@@ -14,7 +14,7 @@ def VGG16(settings):
 
     input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
     
     feature=VGG_net(preprocessed)
     
@@ -39,7 +39,7 @@ def EfficientCNN(settings):
 
     input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
 
     conv1=tf.keras.layers.Conv2D(64,kernel_size=3,padding='same')(preprocessed)
     conv1=tf.keras.layers.BatchNormalization()(conv1)
@@ -69,7 +69,7 @@ def InceptionResnetV2(settings):
 
     input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
 
     feature=InceptionResnet(preprocessed)
     
@@ -85,7 +85,7 @@ def MobilenetV3(settings):
 
     input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
     
     feature=Mobilenet(preprocessed)
     
@@ -98,7 +98,7 @@ def AFL_Model(settings):
         input_channels=1
     input_image=tf.keras.layers.Input(shape=(settings['input_shape'],settings['input_shape']),name='input_image')
     preprocessed=tf.keras.layers.Reshape((settings['input_shape'],settings['input_shape'],1))(input_image)
-    preprocessed=PreprocessingPipeline(settings['direct_map'])(preprocessed)
+    preprocessed=PreprocessingPipeline(settings['direct_map'],settings['data_augmentation'])(preprocessed)
     
     def conv_block(channels,kernel_size=3,strides=1,bn=True):
         m=tf.keras.models.Sequential([
