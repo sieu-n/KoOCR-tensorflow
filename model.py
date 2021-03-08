@@ -138,12 +138,11 @@ class KoOCR():
             pbar=train_dataset
         for image,label in pbar:
             out=self.model.train_on_batch(image,label)
-            loss_arr+=out
+            loss_arr+=np.array(out)
             total_p+=1
             
             if self.fit_discriminator:
                 self.discriminator.train_on_batch(image,label['DISC'])
-            #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128,verbose=self.verbose)
         print("Training L:", list(loss_arr/total_p))
 
