@@ -174,7 +174,8 @@ def evaluate(model,key_text,plot_wrong=True):
 
 if __name__=='__main__':
     args = parser.parse_args()
-
+    plt.rc('font', family='NanumBarunGothic') 
+    
     KoOCR=model.KoOCR(split_components=args.split_components,weight_path=args.weights)
 
     if args.accuracy:

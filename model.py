@@ -128,19 +128,23 @@ class KoOCR():
 
     def fit_adversarial(self,train_x,train_y,val_x,val_y,batch_size):
         train_dataset = tf.data.Dataset.from_tensor_slices((train_x, train_y)).batch(batch_size)
-
+        loss_arr,total_p=0,0
+        
         if self.verbose==1:
             pbar=tqdm(train_dataset)
         else:
             pbar=train_dataset
         for image,label in pbar:
             out=self.model.train_on_batch(image,label)
+            loss_arr+=out
+            total_p+=1
+            
             if self.fit_discriminator:
                 self.discriminator.train_on_batch(image,label['DISC'])
             #pbar.set_description("Loss:"+str(out[:len(out)//2])+"  Accuracy:"+str(out[len(out)//2:]))
         results = self.model.evaluate(val_x, val_y, batch_size=128,verbose=self.verbose)
-        #print("Results:", results)
-        print(out)
+        print("Training L:", list(loss_arr/total_p))
+
         loss_dict = {name+'_loss': pred for name, pred in zip(self.model.output_names, out[:len(out)//2])}
         acc_dict = {name+'_accuracy': pred for name, pred in zip(self.model.output_names, out[len(out)//2:])}
         z = {**loss_dict, **acc_dict}
