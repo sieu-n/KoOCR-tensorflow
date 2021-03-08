@@ -141,10 +141,12 @@ def generate_confusion_matrix(model,key_text):
         fig.savefig(os.path.join('./logs','confusion_matrix_'+key_text+'_'+t+".png"))
         plt.clf()
         
-def evaluate(model,key_text):
+def evaluate(model,key_text,plot_wrong=True):
     #Evaluate top-n accuracy
     correct_num,total_num=0,0
     file_list=fnmatch.filter(os.listdir(args.data_path), f'{key_text}*.pickle')
+
+    wrong_list=[]
     for x in progressbar.progressbar(file_list):
         #Read pickle
         path=os.path.join(args.data_path,x)
@@ -155,7 +157,19 @@ def evaluate(model,key_text):
         #Compare/calculate acc
         for idx,pred_ in enumerate(pred):
             total_num+=1
-            correct_num+=data['label'][idx] in pred_
+            if data['label'][idx] in pred_:
+                correct_num+=1
+            else:
+                wrong_list.append((data['image'][idx],data['label'][idx]))
+
+    if plot_wrong:
+        fig = plt.figure(figsize=(10,10))
+        for x in range(100):
+            plt.subplot(x,10,10)
+            plt.imshow(wrong_list[x][0])
+            plt.xlabel('Pred:'+str(wrong_list[x][1]))
+        plt.savefig(f'./logs/{key_text}_Wrong_examples.png')
+        plt.clf()
     return 100*correct_num/total_num
 
 if __name__=='__main__':
