@@ -30,10 +30,10 @@ def build_FC_split(input_image,x,settings):
     JONG=tf.keras.layers.Dense(len(korean_manager.JONGSUNG_LIST),activation='softmax',name='JONGSUNG')(dense)
     #Define discriminator
     if settings['adversarial_learning']:
-        disc=tf.keras.layers.Dense(512,name='disc_start',trainable=False)(x)
+        disc=tf.keras.layers.Dense(512,name='disc_start')(x)
         disc=tf.keras.layers.LeakyReLU()(disc)
         disc=tf.keras.layers.Dropout(0.5)(disc)
-        disc=tf.keras.layers.Dense(1,activation='sigmoid',name='DISC',trainable=False)(disc)
+        disc=tf.keras.layers.Dense(1,activation='sigmoid',name='DISC')(disc)
 
         return Model(inputs=input_image,outputs=[CHO,JUNG,JONG,disc])
 
