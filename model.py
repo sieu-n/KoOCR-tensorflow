@@ -68,7 +68,9 @@ class KoOCR():
 
         self.discriminator=tf.keras.models.Model(self.model.input,disc_output.output)
 
-        self.model.trainable=False
+        for l in self.model.layers:
+            l.trainable=False
+            
         self.model.get_layer('disc_start').trainable=True
         self.model.get_layer('DISC').trainable=True
 
