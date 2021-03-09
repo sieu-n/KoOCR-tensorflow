@@ -23,7 +23,11 @@ def build_FC_split(input_image,x,settings):
         x=tf.keras.layers.GlobalAveragePooling2D()(x)
     elif settings['fc_link']=='GWAP':
         x=CustomLayers.GlobalWeightedAveragePooling()(x)
-    dense=tf.keras.layers.Dense(1024)(x)
+        
+    dense=tf.keras.layers.Dropout(0.5)(x)
+    dense=tf.keras.layers.Dense(2048)(dense)
+    dense=tf.keras.layers.BatchNormalization()(dense)
+    dense=tf.keras.layers.LeakyReLU()(dense)
 
     CHO=tf.keras.layers.Dense(len(korean_manager.CHOSUNG_LIST),activation='softmax',name='CHOSUNG')(dense)
     JUNG=tf.keras.layers.Dense(len(korean_manager.JUNGSUNG_LIST),activation='softmax',name='JUNGSUNG')(dense)
