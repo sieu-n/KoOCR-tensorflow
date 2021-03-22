@@ -11,7 +11,6 @@ Open-source Korean OCR engine based on Tensorflow, deep-learning.
 - 쉽게 사용 가능한 고성능의 한글 OCR 프로젝트, 라이브러리가 많지 않았다. 
 - 중국어 인식(HCCR)등에 사용된 학습 방법, Model Architecture를 한글 인식에 적용하고 성능을 비교하였다.
 - 한글의 특수한 구조에 기인해 초성, 중성, 종성을 각각 따로 예측하는 Multi-output 모델을 구성했다. 
-- 학습 완료된 모델(logs/weights.h5)과 학습에 사용된 코드 전체를 공개하고 있다. 
 
 
 ##  Method and Plans
